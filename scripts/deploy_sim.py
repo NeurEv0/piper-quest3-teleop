@@ -17,10 +17,6 @@ import torch
 import cv2
 from collections import deque
 import argparse
-import sys
-sys.path.append("../")
-from act.utils import parse_id
-# from act.imitate_episodes import RECORD_DIR, DATA_DIR, LOG_DIR
 
 from pathlib import Path
 current_dir = Path(__file__).parent.resolve()
@@ -28,6 +24,17 @@ DATA_DIR = (current_dir.parent / 'data/').resolve()
 RECORD_DIR = (DATA_DIR / 'recordings/').resolve()
 LOG_DIR = (DATA_DIR / 'logs/').resolve()
 # print(f"\nDATA dir: {DATA_DIR}")
+
+def parse_id(base_dir, prefix):
+    base_path = Path(base_dir)
+    if not base_path.exists() or not base_path.is_dir():
+        raise ValueError(f"The provided base directory does not exist or is not a directory: \n{base_path}")
+
+    for subfolder in base_path.iterdir():
+        if subfolder.is_dir() and subfolder.name.startswith(prefix):
+            return str(subfolder), subfolder.name
+
+    return None, None
 
 def get_norm_stats(data_path):
     # norm_stats = {
