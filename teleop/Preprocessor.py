@@ -6,9 +6,11 @@ from .TeleVision import OpenTeleVision
 
 # VR로부터 넘어온 데이터를 4x4 행렬 세트로 정리
 class VuerPreprocessor:
-    def __init__(self): 
+    def __init__(self):
         # vuer를 키고 시작하는 오른쪽 컨트롤러의 절대 좌표 시작점
         self.vuer_right_ctrl_mat = np.eye(4)
+        # Left controller start pose (for bimanual teleop)
+        self.vuer_left_ctrl_mat = np.eye(4)
         self._T = grd_yup2grd_zup
         self._Tinv = fast_mat_inv(grd_yup2grd_zup)
         # [[1 0 0 0]
@@ -16,7 +18,7 @@ class VuerPreprocessor:
         #  [0 0 1 0]
         #  [0 0 0 1]] 의 의미는 초기값을 pos = [0 0 0], quat_xyzw = [0 0 0 1]로 만듦
 
-    # 좌표들을 살펴보면 Y축이 머리 위로 향하는 좌표계임을 알 수 있음. 여기서는 Y UP, -Z forward 시스템을 쓴다고 함. 
+    # 좌표들을 살펴보면 Y축이 머리 위로 향하는 좌표계임을 알 수 있음. 여기서는 Y UP, -Z forward 시스템을 쓴다고 함.
     def process(self, tv : OpenTeleVision):
         # mat_update의 역할은 행렬의 determinant가 0일 경우에 이전 값을 유지하고, 아니면 새 행렬로 업데이트하는 함수
         self.vuer_right_ctrl_mat = mat_update(self.vuer_right_ctrl_mat, tv.right_controller.copy())
@@ -26,3 +28,13 @@ class VuerPreprocessor:
         right_ctrl = self._T @ self.vuer_right_ctrl_mat @ self._Tinv
 
         return right_ctrl
+
+    def process_left(self, tv: OpenTeleVision):
+        """Transform the left controller into a z-up 4x4 matrix, same convention as process()."""
+        self.vuer_left_ctrl_mat = mat_update(self.vuer_left_ctrl_mat, tv.left_controller.copy())
+        left_ctrl = self._T @ self.vuer_left_ctrl_mat @ self._Tinv
+        return left_ctrl
+
+    def process_both(self, tv: OpenTeleVision):
+        """Transform both hands at once -> (left_ctrl_4x4, right_ctrl_4x4)."""
+        return self.process_left(tv), self.process(tv)

@@ -68,6 +68,22 @@ class VuerTeleop:
 
         return right_pose
 
+    @staticmethod
+    def _mat_to_pose7(wrist_mat: np.ndarray) -> np.ndarray:
+        """Convert a 4x4 wrist matrix to a pose7 [x,y,z,qx,qy,qz,qw] (xyzw quat)."""
+        quat_wxyz = rotations.quaternion_from_matrix(wrist_mat[:3, :3])
+        quat_xyzw = quat_wxyz[[1, 2, 3, 0]]
+        return np.concatenate([wrist_mat[:3, 3], quat_xyzw])
+
+    def step_both(self) -> Tuple[np.ndarray, np.ndarray]:
+        """Read both controllers for bimanual teleop.
+
+        returns:
+          (left_pose, right_pose), each (7,) [x,y,z,qx,qy,qz,qw] (xyzw quat)
+        """
+        left_wrist_mat, right_wrist_mat = self.processor.process_both(self.tv)
+        return self._mat_to_pose7(left_wrist_mat), self._mat_to_pose7(right_wrist_mat)
+
     @property
     def right_state(self) -> np.ndarray:
         return self.tv.right_state

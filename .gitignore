@@ -11,3 +11,8 @@ __MACOSX/
 *.jpg
 *.svo
 *.png
+
+# Vendored Orbbec SDK binaries (~21 MB). Kept in the working tree for runtime
+# independence from the piper_lerobot-main fork, but not committed — restore on
+# a fresh checkout with: scripts/setup_orbbec_sdk.sh
+third_party/orbbec_sdk/lib/

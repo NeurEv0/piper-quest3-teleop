@@ -50,6 +50,7 @@ class OpenTeleVision:
         self.right_state_shared = Array('d', 14, lock=True)
 
         # LEFT 컨트롤러
+        self.left_controller_shared = Array('d', 16, lock=True)  # 4x4 (left hand) — for bimanual teleop
         self.left_state_shared = Array('d', 14, lock=True)
         
         # Robot skeleton shared memory (joints xyz)
@@ -133,6 +134,11 @@ class OpenTeleVision:
                     1.0 if rs.get("aButtonValue", False) else 0.0,   # 12  
                     1.0 if rs.get("bButtonValue", False) else 0.0,   # 13
                 ]
+
+            # LEFT
+            left = data.get("left")  # length-16 (left hand 4x4) — for bimanual teleop
+            if isinstance(left, (list, tuple)) and len(left) == 16:
+                self.left_controller_shared[:] = left
 
             # LEFT state
             ls = data.get("leftState") or {}
@@ -286,6 +292,11 @@ class OpenTeleVision:
     @property
     def right_controller(self):
         return np.array(self.right_controller_shared[:]).reshape(4, 4, order="F")
+
+    @property
+    def left_controller(self):
+        """Left-hand controller 4x4 pose (for bimanual teleop). Same convention as right_controller."""
+        return np.array(self.left_controller_shared[:]).reshape(4, 4, order="F")
     
     @property
     def right_state(self) -> np.ndarray:
