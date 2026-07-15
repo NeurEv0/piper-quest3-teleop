@@ -23,9 +23,15 @@ class BiQuest3VRConfig(TeleoperatorConfig):
             Note: the shared Vuer overlay tracks a single anchor, so with two
             arms the overlay follows the right controller only; set False to
             disable it entirely for bimanual use.
+        stream_camera_to_headset: If True (default), stream camera images to the
+            Quest3 headset via ImageBackground. Set to False to skip shared-memory
+            allocation and JPEG streaming, reducing CPU/memory overhead when the
+            headset display is not needed (e.g. during data collection with
+            Orbbec cameras).
     """
 
     mock_vr: bool = False
     gripper_alpha: float = 0.35
     gripper_max_m: float = 0.07
     enable_skeleton: bool = False
+    stream_camera_to_headset: bool = True

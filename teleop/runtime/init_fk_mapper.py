@@ -7,12 +7,12 @@ def init_fk_and_start():
     fk = PiperForwardKinematics(DHType.STANDARD) 
     q_zero = np.zeros(6, dtype=float) # [0, 0, 0, 0, 0, 0]
 
-    #  compute_fk는 다음과 같은 행렬을 만듦
+    #  compute_fk produces the following matrix
     #  [[ r11  r12  r13   px ]
     #   [ r21  r22  r23   py ]
     #   [ r31  r32  r33   pz ]
     #   [  0    0    0     1 ]]
-    T_ee0 = fk.compute_fk(q_zero) # T_ee는 all zero 에 대한 
+    T_ee0 = fk.compute_fk(q_zero) # T_ee is for all-zero joint config 
     EE_START = T_ee0[:3, 3].copy() # px, py, pz
     R_ee0 = T_ee0[:3, :3].copy() # [[r11 r12 r13] [r21 r22 r23] [r31 r32 r33]
     print("[INIT] EE_START from FK(q=0):", EE_START)

@@ -16,7 +16,7 @@ class CameraStreamerConfig:
     duplicate_stereo: bool = True    # left=right=frame
     warn_every_n: int = 60           # warn print period on read failure
 
-# openCV 카메라로부터 읽고 shared stereo RGB 버퍼에 기록
+# Read from openCV camera and write to shared stereo RGB buffer
 class OpenCVCameraStreamer:
     """
     Intended usage:
@@ -76,7 +76,7 @@ class OpenCVCameraStreamer:
             frame = cv2.resize(frame, (self.single_w, self.img_h))
         return frame
 
-    # 한 프레임 읽고 dst stereo buffer에 기록
+    # Read one frame and write to dst stereo buffer
     def step(self) -> bool:
         
         self._tick += 1
@@ -92,7 +92,7 @@ class OpenCVCameraStreamer:
                 print("[Camera] Failed to read frame from camera.")
             return False
 
-        # OpenCV 는 BGR 형태이므로..
+        # OpenCV uses BGR format, so...
         if self.cfg.rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 

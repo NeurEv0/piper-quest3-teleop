@@ -2,7 +2,7 @@ import numpy as np
 from pytransform3d import rotations
 from typing import Optional
 
-# x, y, z, qx, qy, qz, qw 입력을 4x4 행렬로 변환
+# Convert x, y, z, qx, qy, qz, qw input to 4x4 matrix
 def pose7_to_matrix(pose: np.ndarray) -> np.ndarray:
     pose = np.asarray(pose, dtype=float).reshape(-1)
     if pose.size != 7:

@@ -73,21 +73,21 @@ class VRToRobotMapper:
         self.prev_q_target_wxyz = None
 
     def _is_vr_pos_valid(self, vr_pos: np.ndarray) -> bool:
-        # vr_pos = [x, y, z]라고 하면 norm = sqrt(x^2 + y^2 + z^2)
-        # 즉 원점으로부터 직선거리가 threshold보다 커지면 valid한 input으로 판단
-        # (vr_pos가 스트리밍 초기에 [0, 0, 0]으로 들어오기 때문)
+        # If vr_pos = [x, y, z], norm = sqrt(x^2 + y^2 + z^2)
+        # i.e., if straight-line distance from origin exceeds threshold, treat as valid input
+        # (because vr_pos initially comes in as [0, 0, 0] during early streaming)
         return np.linalg.norm(vr_pos) >= self.cfg.zero_pos_threshold
     
     def _normalize_vr_quat(self, quat_xyzw: np.ndarray) -> Optional[np.ndarray]:
         qx, qy, qz, qw = quat_xyzw
-        q = np.array([qw, qx, qy, qz], dtype=float)  # wxyz 형태로 만듦
+        q = np.array([qw, qx, qy, qz], dtype=float)  # Convert to wxyz format
 
         n = np.linalg.norm(q) # sqrt(qw^2 + qx^2 + qy^2 + qz^2)
-        if n < self.cfg.quat_norm_eps: # 아직 값이 안 들어온 상태
+        if n < self.cfg.quat_norm_eps: # Values haven't come in yet
             return None
         return q / n
     
-    # hold에서 squeeze 재진입용 함수
+    # Function for re-entering from hold via squeeze
     def set_neutral(self, neutral_target_T, ref_controller_pose7):
         import numpy as np
         self.neutral_target_T = np.asarray(neutral_target_T, dtype=float).reshape(4, 4).copy()
@@ -187,7 +187,7 @@ class VRToRobotMapper:
         P = np.asarray(self.cfg.P, dtype=float).reshape(3, 3)
         dR_robot = P @ dR_vr @ P.T
 
-        # robot target orientation: base_R * dR_robot (기존 R_ee0 대신 base_R)
+        # robot target orientation: base_R * dR_robot (base_R instead of original R_ee0)
         R_target = base_R @ dR_robot
 
         # quaternion sign stabilization (wxyz)

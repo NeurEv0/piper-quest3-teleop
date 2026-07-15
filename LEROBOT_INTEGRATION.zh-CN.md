@@ -25,6 +25,9 @@
   - `HOLD`：位置保持（松开 squeeze）
 - **夹爪**：经过 EMA 平滑的 trigger 输入（0-1 → 0-0.07m）
 - **Mock 模式**：可在没有 Quest3 的情况下运行，用于测试
+- **头显相机画面**：可选开关 `stream_camera_to_headset`（默认 `true`）。设为 `false`
+  时跳过共享内存分配和 JPEG 推流，消除与 Orbbec 相机的 CPU/内存争抢，提升数采
+  相机FPS稳定性。
 
 ### PiperQuest3 Robot（`lerobot_robot_piper_quest3`）
 - LeRobot fork 中 `PIPERFollower` 的轻量子类
@@ -88,6 +91,14 @@ lerobot-record \
   --dataset.reset_time_s=30 \
   --dataset.single_task="Pick and place the cube"
 ```
+
+> **💡 提示 — 数采时相机FPS稳定性**：Quest3 头显相机画面（ImageBackground 推流）在
+> 后台进程中运行，会对每帧做 JPEG 编码并通过 WebSocket 推送，可能与 3 台 Orbbec
+> 相机争抢 CPU 和内存带宽。为确保数采相机FPS稳定，建议关闭头显画面推送：
+> ```bash
+> --teleop.stream_camera_to_headset=false
+> ```
+> VR 手柄跟踪和骨架叠加仍正常工作 —— 仅跳过头显中的相机透视画面。
 
 ### 3. VR 遥操作控制
 - **右手 Squeeze**：进入/退出遥操作模式
@@ -232,6 +243,9 @@ fork 内部路径，会让本工作区依赖 fork 的磁盘布局。为保持工
 4. **相机设备**：真实录制需连接 3 台 Orbbec 相机（序列号 `CP0BB530000J`、`CC1N16200P0`、
    `CC1N162022N`）。使用 `type: orbbec`（Orbbec SDK）——本机 3 相机的 OpenCV 并发不稳定。
 5. **CAN 接口**：需要对应臂的 CAN 接口已启动（单臂：`can_right`；双臂：`can_left` + `can_right`）。
+6. **头显相机推流与Orbbec FPS**：默认开启的头显相机推流消耗 CPU 做 JPEG 编码和
+   WebSocket 发送，可能导致三台 Orbbec 相机录制时 FPS 不稳定。数采时建议加
+   `--teleop.stream_camera_to_headset=false` 关闭。
 
 ## 后续步骤
 
@@ -275,7 +289,10 @@ python tests/test_mock_recording.py
 **总变更：**
 - 2 个新包（创建 6 个文件）
 - 1 个测试脚本
-- 对现有 `teleop/` 代码 0 修改（完全保留）
+- `stream_camera_to_headset` 可选开关，涉及 8 个文件：
+  - 2 个配置文件（单臂 + 双臂）
+  - 2 个遥操作器文件（单臂 + 双臂）
+  - 4 个 `teleop/` 核心文件（`TeleVision.py`、`VuerTeleop.py`、`app.py`、`init_camera.py`）
 - 0 个 git commit（开发模式）
 
 **集成方式：**

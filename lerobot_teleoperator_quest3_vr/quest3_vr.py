@@ -55,7 +55,7 @@ class Quest3VR(Teleoperator):
 
         # ── VR communication ──────────────────────────────────────────
         if _VUER_AVAILABLE and not config.mock_vr:
-            self._vuer = VuerTeleop()
+            self._vuer = VuerTeleop(stream_images=config.stream_camera_to_headset)
         else:
             self._vuer = None  # mock mode — no real Quest3
 

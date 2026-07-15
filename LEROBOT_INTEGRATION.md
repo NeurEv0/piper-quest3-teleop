@@ -25,6 +25,10 @@ All components working:
   - `HOLD`: Position hold (squeeze released)
 - **Gripper**: EMA-smoothed trigger input (0-1 → 0-0.07m)
 - **Mock Mode**: Can run without Quest3 for testing
+- **Headset Camera Display**: Optional `stream_camera_to_headset` flag (default `true`).
+  Set `false` to skip shared-memory allocation and JPEG streaming to the Quest3
+  headset, eliminating CPU/memory contention with the Orbbec cameras during
+  recording for more stable camera FPS.
 
 ### PiperQuest3 Robot (`lerobot_robot_piper_quest3`)
 - Thin subclass of `PIPERFollower` from LeRobot fork
@@ -88,6 +92,17 @@ lerobot-record \
   --dataset.reset_time_s=30 \
   --dataset.single_task="Pick and place the cube"
 ```
+
+> **💡 Tip — Stable Camera FPS During Recording**: The Quest3 headset camera
+> display (ImageBackground streaming) runs in a background process and encodes
+> JPEG frames over WebSocket, which can compete with the 3 Orbbec cameras for
+> CPU and memory bandwidth. To maximize recording stability and camera FPS
+> consistency, disable the headset display:
+> ```bash
+> --teleop.stream_camera_to_headset=false
+> ```
+> The VR controllers and skeleton overlay continue to work normally — only the
+> camera pass-through view in the headset is skipped.
 
 ### 3. VR Teleop Controls
 - **Right Squeeze**: Engage/disengage teleop mode
@@ -242,6 +257,11 @@ the fork's on-disk layout. To keep the workspace self-contained:
    OpenCV concurrency for 3 cameras was found unstable on this rig.
 5. **CAN Interface**: Requires the arm's CAN interface up (single arm: `can_right`;
    dual arm: `can_left` + `can_right`).
+6. **Headset Camera Display vs Orbbec FPS**: The default headset camera streaming
+   consumes CPU for JPEG encoding and WebSocket push, which can cause unstable
+   FPS on the 3 Orbbec cameras during recording. Set
+   `--teleop.stream_camera_to_headset=false` to disable it when recording quality
+   matters more than seeing the camera view in the headset.
 
 ## Next Steps
 
@@ -285,7 +305,10 @@ python tests/test_mock_recording.py
 **Total Changes:**
 - 2 new packages (6 files created)
 - 1 test script
-- 0 modifications to existing `teleop/` code (fully preserved)
+- `stream_camera_to_headset` optional flag added across 8 files:
+  - 2 config files (single-arm + dual-arm)
+  - 2 teleoperator files (single-arm + dual-arm)
+  - 4 `teleop/` core files (`TeleVision.py`, `VuerTeleop.py`, `app.py`, `init_camera.py`)
 - 0 git commits (development mode)
 
 **Integration Method:**

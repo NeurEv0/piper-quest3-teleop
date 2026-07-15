@@ -25,7 +25,7 @@ def enable_and_wait(
     while True:
         tries += 1
 
-        # enable 명령이 실제로 성공하는지/예외나는지 로그
+        # Log whether enable command actually succeeds or raises exception
         try:
             ret = driver.enable()
             print(f"[safety] enable() try={tries} ret={ret}")
@@ -34,14 +34,14 @@ def enable_and_wait(
             last_exc = e
             print(f"[safety] enable() try={tries} exception={repr(e)}")
 
-        # 그리퍼는 실패해도 계속
+        # Continue even if gripper fails
         if also_open_gripper:
             try:
                 driver.set_gripper(position=0, effort=2000, enable=True)
             except Exception as e:
                 print("[safety] Gripper open command failed:", repr(e))
 
-        # is_enabled도 예외/원시값 로깅
+        # Also log is_enabled exceptions/raw values
         try:
             enabled = driver.is_enabled()
             print(f"[safety] Enable status: {enabled}")

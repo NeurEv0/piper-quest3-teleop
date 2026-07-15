@@ -4,13 +4,12 @@
 """
 piper_forward_kinematics.py
 
-C++ PiperForwardKinematics (Agilex-College/piper_kinematics)를
-파이썬/NumPy 버전으로 옮긴 코드.
+Python/NumPy port of C++ PiperForwardKinematics (Agilex-College/piper_kinematics).
 
-- STANDARD / MODIFIED 두 가지 DH 타입 지원
-- compute_fk(joint_values): 6 DoF Piper arm의 EE pose (4x4) 리턴
-- compute_single_transform(i, joint_val): i번째 조인트에 대한 4x4 변환
-- get_dh_params(): DH 파라미터 테이블 리턴
+- Supports two DH types: STANDARD / MODIFIED
+- compute_fk(joint_values): Returns EE pose (4x4) for 6 DoF Piper arm
+- compute_single_transform(i, joint_val): Returns 4x4 transform for i-th joint
+- get_dh_params(): Returns DH parameter table
 
 """
 
@@ -32,26 +31,26 @@ class PiperForwardKinematics:
         Parameters
         ----------
         dh_type : DHType or str
-            'STANDARD' 또는 'MODIFIED'
+            'STANDARD' or 'MODIFIED'
         """
         if isinstance(dh_type, str):
             dh_type = DHType(dh_type.upper())
         self.dh_type: DHType = dh_type
 
-        # DH 파라미터 테이블: 각 row = [alpha, a, d, theta_offset]
+        # DH parameter table: each row = [alpha, a, d, theta_offset]
         self.dh_params: np.ndarray = np.zeros((6, 4), dtype=float)
         self._setup_dh_parameters()
 
     # ------------------------------------------------------------------
-    # FK 계산
+    # FK computation
     # ------------------------------------------------------------------
     def compute_fk(self, joint_values: List[float] | np.ndarray) -> np.ndarray:
         """
-        6개 조인트 각(joint_values) 에 대해 EE pose (4x4 homogeneous) 계산.
+        Compute EE pose (4x4 homogeneous) for 6 joint angles (joint_values).
 
         Parameters
         ----------
-        joint_values : 길이 >=6 의 array-like (rad)
+        joint_values : array-like of length >=6 (rad)
 
         Returns
         -------
@@ -71,21 +70,21 @@ class PiperForwardKinematics:
         return T
     
     # ------------------------------------------------------------------
-    # 추가: base + 각 조인트 프레임까지 모두 반환
+    # Additional: return base + all joint frames
     # ------------------------------------------------------------------
     def compute_fk_all(self, joint_values: List[float] | np.ndarray) -> List[np.ndarray]:
         """
-        6개 조인트 각(joint_values)에 대해
-        base 포함 각 단계의 pose (4x4 homogeneous)들을 반환.
+        Return poses (4x4 homogeneous) at each step including base,
+        for 6 joint angles (joint_values).
 
         Returns
         -------
         Ts : List[np.ndarray]
-            길이 7 리스트.
+            Length-7 list.
             Ts[0] = base frame (I)
-            Ts[1] = joint1까지 누적변환
+            Ts[1] = cumulative transform up to joint1
             ...
-            Ts[6] = joint6(=EE)까지 누적변환 (compute_fk와 동일)
+            Ts[6] = cumulative transform up to joint6(=EE) (same as compute_fk)
         """
         joint_values = np.asarray(joint_values, dtype=float).reshape(-1)
         if joint_values.size < 6:
@@ -104,7 +103,7 @@ class PiperForwardKinematics:
         
     def fk_all_joint_positions(self, joint_values: List[float] | np.ndarray) -> np.ndarray:
         """
-        base 포함 각 조인트 프레임 원점들의 위치를 (N,3)으로 반환.
+        Return positions of each joint frame origin including base as (N,3).
 
         Returns
         -------
@@ -120,7 +119,7 @@ class PiperForwardKinematics:
 
     def compute_single_transform(self, joint_index: int, joint_value: float) -> np.ndarray:
         """
-        특정 조인트 하나에 대한 4x4 변환.
+        4x4 transform for a specific joint.
         """
         if not (0 <= joint_index < self.dh_params.shape[0]):
             raise ValueError("Joint index out of range.")
@@ -136,9 +135,12 @@ class PiperForwardKinematics:
         return self.dh_type
 
 
-    # DH 파라미터로 Transformation Matrix를 만들 때, 기존에는 순서가 다음과 같음 Ti−1,i​ = Rotz​(θi​)Transz​(di​)Transx​(ai​)Rotx​(αi​)
-    # Modified는 이 행렬 곱셈의 순서를 바꾼 것임. Rot_x(α), Trans_x(a), Rot_z(θ), Trans_z(d)
-    # 두 가지가 정의되는 이유는 프레임을 관절 뒤에 두는 경우 Standard이고 프레임을 관절 앞에 두는 경우 Modified이기 떄문.
+    # When building the transformation matrix from DH parameters, the order is:
+    # Ti−1,i = Rotz(θi)Transz(di)Transx(ai)Rotx(αi)
+    # Modified changes the order of this matrix multiplication:
+    # Rot_x(α), Trans_x(a), Rot_z(θ), Trans_z(d)
+    # Two types are defined because Standard puts the frame after the joint,
+    # while Modified puts the frame before the joint.
     def _setup_dh_parameters(self) -> None:
         """
         STANDARD:
@@ -162,12 +164,12 @@ class PiperForwardKinematics:
         if self.dh_type == DHType.STANDARD:
             self.dh_params = np.array(
                 [
-                    [-np.pi / 2.0, 0.0,       0.123,    0.0],  # joint 1의 DH 파라미터
-                    [0.0,          0.28503,   0.0,      np.deg2rad(-172.22)], # joint 2의 DH 파라미터
-                    [np.pi / 2.0, -0.021984,  0.0,      np.deg2rad(-102.78)], # joint 3의 DH 파라미터
-                    [-np.pi / 2.0, 0.0,       0.25075,  0.0], # joint 4의 DH 파라미터
-                    [np.pi / 2.0,  0.0,       0.0,      0.0], # joint 5의 DH 파라미터
-                    [0.0,          0.0,       0.211,    0.0], # joint 6의 DH 파라미터
+                    [-np.pi / 2.0, 0.0,       0.123,    0.0],  # DH parameters for joint 1
+                    [0.0,          0.28503,   0.0,      np.deg2rad(-172.22)],  # DH parameters for joint 2
+                    [np.pi / 2.0, -0.021984,  0.0,      np.deg2rad(-102.78)],  # DH parameters for joint 3
+                    [-np.pi / 2.0, 0.0,       0.25075,  0.0],  # DH parameters for joint 4
+                    [np.pi / 2.0,  0.0,       0.0,      0.0],  # DH parameters for joint 5
+                    [0.0,          0.0,       0.211,    0.0],  # DH parameters for joint 6
                 ],
                 dtype=float,
             )
@@ -175,19 +177,19 @@ class PiperForwardKinematics:
             # MODIFIED
             self.dh_params = np.array(
                 [
-                    [0.0,          0.0,       0.123,    0.0], # joint 1의 DH 파라미터
-                    [-np.pi / 2.0, 0.0,       0.0,      np.deg2rad(-172.22)], # joint 2의 DH 파라미터
-                    [0.0,          0.28503,   0.0,      np.deg2rad(-102.78)], # joint 3의 DH 파라미터
-                    [np.pi / 2.0, -0.021984,  0.25075,  0.0], # joint 4의 DH 파라미터
-                    [-np.pi / 2.0, 0.0,       0.0,      0.0], # joint 5의 DH 파라미터
-                    [np.pi / 2.0,  0.0,       0.211,    0.0], # joint 6의 DH 파라미터
+                    [0.0,          0.0,       0.123,    0.0],  # DH parameters for joint 1
+                    [-np.pi / 2.0, 0.0,       0.0,      np.deg2rad(-172.22)],  # DH parameters for joint 2
+                    [0.0,          0.28503,   0.0,      np.deg2rad(-102.78)],  # DH parameters for joint 3
+                    [np.pi / 2.0, -0.021984,  0.25075,  0.0],  # DH parameters for joint 4
+                    [-np.pi / 2.0, 0.0,       0.0,      0.0],  # DH parameters for joint 5
+                    [np.pi / 2.0,  0.0,       0.211,    0.0],  # DH parameters for joint 6
                 ],
                 dtype=float,
             )
 
     def _compute_transform(self, alpha: float, a: float, d: float, theta: float) -> np.ndarray:
         """
-        STANDARD / MODIFIED 두 가지 케이스.
+        Two cases: STANDARD / MODIFIED.
 
         Returns
         -------

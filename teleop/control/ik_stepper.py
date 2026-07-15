@@ -12,24 +12,24 @@ def ik_step(
     q_idx7: int, q_idx8: int,
     debug_qpos_check: bool = False,
     dt_min: float = 1e-4,
-    dt_max: float = 1/30,   # 33ms 이상 튀면 불안정해지기 쉬워서 클램프
+    dt_max: float = 1/30,   # Clamp because values beyond 33ms tend to become unstable
 ):
-    # dt 안정화
+    # Stabilize dt
     dt = float(dt)
     if not np.isfinite(dt):
         dt = dt_max
     dt = max(dt_min, min(dt, dt_max))
 
-    # configuration에 현재 arm q 반영
+    # Reflect current arm q in configuration
     last_q = np.asarray(last_q, dtype=float).reshape(6,)
     q_full = configuration.q.copy()
     q_full[:6] = last_q
     configuration.q[:] = q_full
 
-    # MuJoCo 상태 동기화 + forward (FK/Jacobian 갱신) 
+    # Sync MuJoCo state + forward (FK/Jacobian update) 
     data.qpos[:] = configuration.q
 
-    # gripper도 여기서 같이 넣어두면, FK/Jacobian이 그리퍼 포함 모델일 때 일관성이 좋아짐
+    # Putting gripper here too gives better consistency when FK/Jacobian includes gripper in the model
     # grip_um: 0..1000
     vg = np.clip(grip_hw / 1000.0, 0.0, 1.0)
 
@@ -47,20 +47,20 @@ def ik_step(
     if debug_qpos_check:
         print(f"[QPOS CHECK] q4={float(data.qpos[3]):.5f} q7={float(data.qpos[q_idx7]):.5f} q8={float(data.qpos[q_idx8]):.5f}")
 
-    # task 타겟 업데이트
+    # Update task target
     T_wt = mink.SE3.from_matrix(target_T_use)
     tasks[0].set_target(T_wt)
 
-    # 속도 스무딩 적용
+    # Apply velocity smoothing
     vel = mink.solve_ik(configuration, tasks, dt, solver, limits=limits)
     configuration.integrate_inplace(vel, dt)
 
-    #  MuJoCo qpos에 최종 반영 + forward
+    #  Final apply to MuJoCo qpos + forward
     data.qpos[:] = configuration.q
     data.qpos[q_idx7] = q7
     data.qpos[q_idx8] = q8
 
-    # configuration에도 최종 반영(일관성 유지)
+    # Also apply to configuration (maintain consistency)
     configuration.q[:] = data.qpos
 
     mujoco.mj_forward(model, data)

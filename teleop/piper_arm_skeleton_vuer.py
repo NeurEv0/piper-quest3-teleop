@@ -9,7 +9,7 @@ def _quat_from_two_vec(a, b):
     v = np.cross(a, b)
     w = 1.0 + float(np.dot(a, b))
     if w < 1e-8:
-        # 180도: a와 직교축 하나 잡기
+        # 180 degrees: grab an axis orthogonal to a
         tmp = np.array([1.0, 0.0, 0.0]) if abs(a[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
         v = np.cross(a, tmp)
         v = v / (np.linalg.norm(v) + 1e-12)
@@ -42,10 +42,10 @@ class VuerRobotSkeleton:
         self.layers = layers
         self.offset = np.array(offset, dtype=float)
 
-    ## quest3 상에 그려줌
-    def build_elements(self, joints_xyz): # joints_xyz는 각 관절에 대한 좌표
+    ## Render on Quest3
+    def build_elements(self, joints_xyz): # joints_xyz: coordinates for each joint
         joints_xyz = np.asarray(joints_xyz, dtype=float)
-        joints_xyz = joints_xyz + self.offset # 각 관절 좌표 + offset
+        joints_xyz = joints_xyz + self.offset # Each joint coordinate + offset
         
         elems = []
 
@@ -72,7 +72,7 @@ class VuerRobotSkeleton:
             mid = (p0 + p1) * 0.5
             d = v / L
 
-            # Cylinder 기본 축(Y) -> 링크 방향(d)
+            # Cylinder default axis (Y) -> link direction (d)
             q = _quat_from_two_vec(np.array([0.0, 1.0, 0.0]), d)
             elems.append(
                 Cylinder(

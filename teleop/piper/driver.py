@@ -82,7 +82,7 @@ class PiperDriver:
     def send_joints_mit(
         self,
         q_ref: Sequence[float],      # rad
-        dq_ref: Sequence[float],     # rad/s (일단 0으로 둬도 됨)
+        dq_ref: Sequence[float],     # rad/s (can leave as 0 for now)
         kp: float = 3.0,
         kd: float = 2.0,
         tau_ref: Union[Sequence[float], float] = 0.0,
@@ -168,5 +168,5 @@ class PiperDriver:
                 and info.motor_6.foc_status.driver_enable_status
             )
         except AttributeError:
-            # SDK 구조 변경 대비
+            # Guard against SDK structure changes
             return False
