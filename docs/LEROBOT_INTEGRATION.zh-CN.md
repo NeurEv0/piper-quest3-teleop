@@ -65,7 +65,6 @@ cd /home/ylhp-e-ai/ZHITAI_1t/piper-quest3-teleop
 # 单臂示例
 #
 # 注意：
-# - 相机使用 "orbbec" 类型（Orbbec SDK，三相机并发稳定），而非 "opencv"。
 #   相机按 serial_number 寻址（重启/换 USB 口不变）。
 # - 数据仅保存在本地：--dataset.push_to_hub=false（默认是 true！）+ 显式 --dataset.root。
 #   repo_id 只作为本地目录名/元数据，不联网上传。
@@ -198,7 +197,7 @@ piper-quest3-teleop/
 
 ## Orbbec SDK 独立性
 
-相机使用 **Orbbec SDK**（不用 OpenCV —— 本机 3 相机的 OpenCV 并发不稳定）。
+相机使用 **Orbbec SDK**
 LeRobot 的 `OrbbecCameraConfig.sdk_lib_path` 默认指向 `piper_lerobot-main`
 fork 内部路径，会让本工作区依赖 fork 的磁盘布局。为保持工作区独立：
 
@@ -241,7 +240,7 @@ fork 内部路径，会让本工作区依赖 fork 的磁盘布局。为保持工
    `--robot.type=bi_piper_follower --teleop.type=piper_drag_teach_keyboard`
    （拖拽示教，抓夹用键盘控制）。
 4. **相机设备**：真实录制需连接 3 台 Orbbec 相机（序列号 `CP0BB530000J`、`CC1N16200P0`、
-   `CC1N162022N`）。使用 `type: orbbec`（Orbbec SDK）——本机 3 相机的 OpenCV 并发不稳定。
+   `CC1N162022N`）。使用 `type: orbbec`（Orbbec SDK）。
 5. **CAN 接口**：需要对应臂的 CAN 接口已启动（单臂：`can_right`；双臂：`can_left` + `can_right`）。
 6. **头显相机推流与Orbbec FPS**：默认开启的头显相机推流消耗 CPU 做 JPEG 编码和
    WebSocket 发送，可能导致三台 Orbbec 相机录制时 FPS 不稳定。数采时建议加
@@ -293,7 +292,6 @@ python tests/test_mock_recording.py
   - 2 个配置文件（单臂 + 双臂）
   - 2 个遥操作器文件（单臂 + 双臂）
   - 4 个 `teleop/` 核心文件（`TeleVision.py`、`VuerTeleop.py`、`app.py`、`init_camera.py`）
-- 0 个 git commit（开发模式）
 
 **集成方式：**
 - LeRobot 第三方插件发现（`lerobot_*` 包名前缀）

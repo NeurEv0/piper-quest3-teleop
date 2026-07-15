@@ -29,9 +29,9 @@ class OpenTeleVision:
 
         # ngrok - tunneling service that makes a locally running server accessible from anywhere on the internet
         if ngrok: ## If true, open via ngrok-provided https 
-            self.app = Vuer(host='0.0.0.0', queries=dict(grid=False), queue_len=3) ## queries dict(grid=False) turns off Vuer default UI grid display. queue_len=3 limits event queue length (prevents lag)
+            self.app = Vuer(host='10.200.5.229', queries=dict(grid=False), queue_len=3) ## queries dict(grid=False) turns off Vuer default UI grid display. queue_len=3 limits event queue length (prevents lag)
         else: ## Use certificate directly
-            self.app = Vuer(host='0.0.0.0', cert=cert_file, key=key_file, queries=dict(grid=False), queue_len=3)
+            self.app = Vuer(host='10.200.5.229', cert=cert_file, key=key_file, queries=dict(grid=False), queue_len=3)
         
         # Controller event handler
         self.app.add_handler("CONTROLLER_MOVE")(self.on_controller_move)

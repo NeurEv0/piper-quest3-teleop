@@ -309,7 +309,6 @@ python tests/test_mock_recording.py
   - 2 config files (single-arm + dual-arm)
   - 2 teleoperator files (single-arm + dual-arm)
   - 4 `teleop/` core files (`TeleVision.py`, `VuerTeleop.py`, `app.py`, `init_camera.py`)
-- 0 git commits (development mode)
 
 **Integration Method:**
 - LeRobot third-party plugin discovery (`lerobot_*` package prefix)
