@@ -15,6 +15,9 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_ROOT}"
 
+# Ensure custom lerobot_robot_*/lerobot_teleoperator_* packages are discoverable.
+export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH:-}"
+
 # Override these via environment as needed.
 TASK="${TASK:-stack the cube}"
 NUM_EPISODES="${NUM_EPISODES:-20}"

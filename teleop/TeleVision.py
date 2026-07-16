@@ -29,9 +29,9 @@ class OpenTeleVision:
 
         # ngrok - tunneling service that makes a locally running server accessible from anywhere on the internet
         if ngrok: ## If true, open via ngrok-provided https 
-            self.app = Vuer(host='10.200.5.229', queries=dict(grid=False), queue_len=3) ## queries dict(grid=False) turns off Vuer default UI grid display. queue_len=3 limits event queue length (prevents lag)
+            self.app = Vuer(host='0.0.0.0', queries=dict(grid=False), queue_len=3) ## queries dict(grid=False) turns off Vuer default UI grid display. queue_len=3 limits event queue length (prevents lag)
         else: ## Use certificate directly
-            self.app = Vuer(host='10.200.5.229', cert=cert_file, key=key_file, queries=dict(grid=False), queue_len=3)
+            self.app = Vuer(host='0.0.0.0', cert=cert_file, key=key_file, queries=dict(grid=False), queue_len=3)
         
         # Controller event handler
         self.app.add_handler("CONTROLLER_MOVE")(self.on_controller_move)
@@ -296,33 +296,33 @@ class OpenTeleVision:
         except Exception as e: ## Web Socket disconnected
             print("[main_image] session ended:", repr(e))
             return
-            
-        
-        @property
-        def right_controller(self):
-            return np.array(self.right_controller_shared[:]).reshape(4, 4, order="F")
 
-        @property
-        def left_controller(self):
-            """Left-hand controller 4x4 pose (for bimanual teleop). Same convention as right_controller."""
-            return np.array(self.left_controller_shared[:]).reshape(4, 4, order="F")
-    
-        @property
-        def right_state(self) -> np.ndarray:
-            """
-            right_state shape: (14,)
-            """
-            return np.array(self.right_state_shared[:], dtype=float)
 
-        @property
-        def left_state(self) -> np.ndarray:
-            """
-            left_state shape: (14,)
-            """
-            return np.array(self.left_state_shared[:], dtype=float)
-    
-        @property
-        def aspect(self):
-            # with self.aspect_shared.get_lock():
-                # return float(self.aspect_shared.value)
-            return float(self.aspect_shared.value)
+    @property
+    def right_controller(self):
+        return np.array(self.right_controller_shared[:]).reshape(4, 4, order="F")
+
+    @property
+    def left_controller(self):
+        """Left-hand controller 4x4 pose (for bimanual teleop). Same convention as right_controller."""
+        return np.array(self.left_controller_shared[:]).reshape(4, 4, order="F")
+
+    @property
+    def right_state(self) -> "np.ndarray":
+        """
+        right_state shape: (14,)
+        """
+        return np.array(self.right_state_shared[:], dtype=float)
+
+    @property
+    def left_state(self) -> "np.ndarray":
+        """
+        left_state shape: (14,)
+        """
+        return np.array(self.left_state_shared[:], dtype=float)
+
+    @property
+    def aspect(self):
+        # with self.aspect_shared.get_lock():
+            # return float(self.aspect_shared.value)
+        return float(self.aspect_shared.value)

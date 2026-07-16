@@ -1,4 +1,4 @@
-"""PiperQuest3Robot — LeRobot Robot for Piper arm in VR teleop context.
+"""PiperQuest3 — LeRobot Robot for Piper arm in VR teleop context.
 
 Thin subclass of PIPERFollower optimized for VR teleop recording.
 """
@@ -33,7 +33,7 @@ def _to_piper_config(cfg: PiperQuest3Config) -> PIPERFollowerConfig:
     )
 
 
-class PiperQuest3Robot(PIPERFollower):
+class PiperQuest3(PIPERFollower):
     """Piper robot arm optimized for Quest3 VR teleop recording.
 
     Inherits all hardware communication from PIPERFollower.
@@ -47,7 +47,7 @@ class PiperQuest3Robot(PIPERFollower):
         piper_cfg = _to_piper_config(config)
         super().__init__(piper_cfg)
         logger.info(
-            "PiperQuest3Robot initialized (can=%s, cameras=%d)",
+            "PiperQuest3 initialized (can=%s, cameras=%d)",
             piper_cfg.can_name,
             len(self.cameras),
         )

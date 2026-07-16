@@ -63,6 +63,9 @@ class BiPiperQuest3Config(RobotConfig):
     teleop_joint_alpha: float = 1.0
     teleop_gripper_alpha: float = 1.0
 
+    # When True, skip CAN/Camera hardware init (for testing with mock VR).
+    mock_hardware: bool = False
+
     # Scheme B: record action from follower encoders after send_action.
     record_action_from_follower: bool = True
 

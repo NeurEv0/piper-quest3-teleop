@@ -8,6 +8,8 @@
 
 1. [整体架构概览](#1-整体架构概览)
 2. [Quest3 VR 设备连接与配置教程](#2-quest3-vr-设备连接与配置教程)
+	   - [2.5 ngrok 隧道模式（可选）](#25-ngrok-隧道模式可选)
+	   - [2.6 USB 网络共享模式（无 WiFi 环境）](#26-usb-网络共享模式无-wifi-环境)
 3. [手柄连接入口：OpenTeleVision](#3-手柄连接入口opentelevision)
 4. [手柄事件处理：on_controller_move](#4-手柄事件处理on_controller_move)
 5. [坐标预处理：Y-up → Z-up](#5-坐标预处理y-up--z-up)
@@ -132,7 +134,7 @@ OpenTeleVision 是一个 WebXR 网页应用，无需安装 APK，直接通过 Qu
 
 3. 在地址栏输入 Vuer 服务器的 HTTPS URL：
    ```
-   https://192.168.1.100:8012
+   https://10.200.5.229:8012
    ```
    将 IP 和端口替换为实际值。
 
@@ -163,9 +165,114 @@ Vuer 使用同一端口同时处理 HTTPS 页面请求和 WebSocket (WSS) 实时
 
 > **注意**：使用 ngrok 会引入额外延迟，不建议用于精细遥操作任务。
 
-### 2.6 验证连接
 
-#### 2.6.1 测试 Vuer 进程启动
+### 2.6 USB 网络共享模式（无 WiFi 环境）
+
+如果服务器和 Quest3 所在环境没有可用的 WiFi 网络，可以通过 **USB 数据线 + 反向网络共享** 的方式建立连接：
+
+- **gnirehtet**（反向网络共享工具）通过 ADB/USB 将主机的互联网连接共享给 Quest3，使 Quest3 能够加载 Vuer 前端页面
+- **adb reverse** 将 Quest3 的 `localhost:8012` 端口转发到主机的 `8012` 端口，使 WebSocket 数据流通过 USB 传输
+
+> **适用场景**：无 WiFi 环境；主机有 VPN 且可开热点但网卡不支持 AP 模式；需要低延迟有线连接。
+
+#### 2.6.1 前置条件
+
+- Quest3 已开启**开发者模式**和 **USB 调试**
+- 主机已安装 `adb`（Android Debug Bridge）
+- 主机已安装 Java 运行时（JRE 21+）
+- Quest3 通过 USB-C 数据线连接至主机
+
+#### 2.6.2 安装 gnirehtet
+
+gnirehtet 是 Genymobile 开发的 Android 反向网络共享工具，通过 ADB 将主机网络共享给 Android 设备。
+
+1. 安装 Java 运行时（如未安装）：
+   ```bash
+   sudo apt update && sudo apt install -y default-jre
+   ```
+
+2. 下载 gnirehtet（最新版本 v2.5.1）：
+   ```bash
+   mkdir -p ~/.local/opt/gnirehtet ~/.local/bin
+   curl -fL --retry 3 \
+     -o /tmp/gnirehtet-rust-linux64-v2.5.1.zip \
+     https://github.com/Genymobile/gnirehtet/releases/download/v2.5.1/gnirehtet-rust-linux64-v2.5.1.zip
+   # 校验 SHA-256
+   printf '%s  %s\n' \
+     dee55499ca4fef00ce2559c767d2d8130163736d43fdbce753e923e75309c275 \
+     /tmp/gnirehtet-rust-linux64-v2.5.1.zip \
+     | sha256sum --check
+   unzip -o /tmp/gnirehtet-rust-linux64-v2.5.1.zip \
+     -d ~/.local/opt/gnirehtet
+   ```
+
+#### 2.6.3 生成 localhost 证书
+
+由于 Quest3 浏览器通过 `localhost` 访问 Vuer 服务器（经 adb reverse 转发），证书必须包含 `localhost`：
+
+```bash
+cd /home/ylhp-e-ai/ZHITAI_1t/piper-quest3-teleop/teleop
+
+# 备份旧证书
+cp cert.pem cert.pem.pre-usb
+cp key.pem key.pem.pre-usb
+
+# 生成包含 localhost SAN 的证书
+openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 365 \
+  -keyout key.pem -out cert.pem \
+  -subj '/CN=localhost' \
+  -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1'
+chmod 600 key.pem
+```
+
+#### 2.6.4 配置 Vuer 监听地址
+
+编辑 [teleop/TeleVision.py](teleop/TeleVision.py)，将 Vuer 的 `host` 参数改为 `0.0.0.0`（监听所有网络接口）：
+
+```python
+# 第 32 行和第 34 行
+self.app = Vuer(host='0.0.0.0', ...)
+```
+
+#### 2.6.5 启动连接
+
+**每次连接需按以下顺序操作：**
+
+```bash
+# 1. 确认 Quest3 USB 连接正常
+adb devices -l
+# 应显示: 2G97C5ZHCS04C7  device  ...  model:Quest_3
+
+# 2. 启动 gnirehtet 反向网络共享（新终端，保持运行）
+~/.local/opt/gnirehtet/gnirehtet-rust-linux64/gnirehtet run 2G97C5ZHCS04C7
+# Quest3 端会弹出 VPN 连接请求，点击"允许"
+
+# 3. 配置端口转发
+adb -s 2G97C5ZHCS04C7 reverse tcp:8012 tcp:8012
+
+# 4. 启动 Vuer 服务
+conda activate lerobot
+cd ~/ZHITAI_1t/piper-quest3-teleop
+python -m teleop.teleop_real_arm --dry-run
+
+# 5. Quest3 浏览器先访问 https://localhost:8012 信任证书，
+#    再打开 https://vuer.ai?ws=wss://localhost:8012
+```
+
+> **注意**：URL 中必须使用 `localhost` 而非主机 IP，因为 `adb reverse` 将 Quest3 端的 `localhost:8012` 转发到主机的 `8012` 端口。
+
+#### 2.6.6 故障排查
+
+| 问题 | 可能原因 | 解决方法 |
+|------|----------|----------|
+| Quest3 无法加载 vuer.ai | gnirehtet 未运行或未授权 | 重新启动 gnirehtet，在 Quest3 弹出的 VPN 对话框中点"允许" |
+| WebSocket 连接失败 | adb reverse 未配置 | 执行 `adb reverse tcp:8012 tcp:8012`，用 `adb reverse --list` 确认 |
+| 证书警告无法跳过 | 证书不包含 localhost | 按 2.6.3 重新生成证书 |
+| adb devices 显示 no permissions | udev 规则缺失 | 重新插拔 USB 线，或执行 `adb kill-server && adb start-server` |
+| gnirehtet 启动报错 | Java 未安装 | `sudo apt install -y default-jre` |
+### 2.7 验证连接
+
+#### 2.7.1 测试 Vuer 进程启动
 
 运行独立遥操作脚本，确认 Vuer 服务器正常启动：
 
@@ -179,7 +286,7 @@ python -m teleop.teleop_real_arm --dry-run
 
 预期输出中应包含 Vuer 启动日志，无证书相关错误。
 
-#### 2.6.2 确认手柄数据流通
+#### 2.7.2 确认手柄数据流通
 
 在 Quest3 已连接的状态下，观察终端输出中的手柄位姿和按键状态数据（可通过 `--print-freq` 标志打印频率信息）：
 
@@ -189,7 +296,7 @@ python -m teleop.teleop_real_arm --dry-run --print-freq
 
 用手柄做动作，终端应输出实时位姿数据，确认 `CONTROLLER_MOVE` 事件正常触发。
 
-#### 2.6.3 Mock VR 模式（无 Quest3 时）
+#### 2.7.3 Mock VR 模式（无 Quest3 时）
 
 若暂时没有 Quest3 设备，可以使用 Mock VR 模式测试整个管线：
 
@@ -217,9 +324,9 @@ lerobot-record \
   --dataset.episode_time_s=10
 ```
 
-### 2.7 启动遥操作
+### 2.8 启动遥操作
 
-#### 2.7.1 单臂模式（右手柄 → 右臂）
+#### 2.8.1 单臂模式（右手柄 → 右臂）
 
 ```bash
 conda activate lerobot
@@ -245,7 +352,7 @@ lerobot-record \
   --dataset.single_task="Pick and place the cube"
 ```
 
-#### 2.7.2 双臂模式（左右手柄 → 左右臂）
+#### 2.8.2 双臂模式（左右手柄 → 左右臂）
 
 ```bash
 conda activate lerobot
@@ -274,7 +381,7 @@ lerobot-record \
 
 > **重要提示**：数采时建议设置 `--teleop.stream_camera_to_headset=false`，避免 JPEG 编码推流与 Orbbec 相机争抢 CPU/内存带宽，从而保证录制帧率稳定。
 
-### 2.8 VR 遥操作配置参数速查
+### 2.9 VR 遥操作配置参数速查
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
@@ -285,7 +392,7 @@ lerobot-record \
 | `--teleop.enable_skeleton` | `true`（单臂）/ `false`（双臂） | 在头显中渲染机械臂骨架叠加层 |
 | `--teleop.stream_camera_to_headset` | `true` | 将相机画面推流到头显（数采时建议关闭） |
 
-### 2.9 常见问题排查
+### 2.10 常见问题排查
 
 | 问题 | 可能原因 | 解决方法 |
 |------|----------|----------|
