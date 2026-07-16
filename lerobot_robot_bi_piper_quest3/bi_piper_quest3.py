@@ -13,8 +13,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import numpy as np
-
 from lerobot.robots.bi_piper_follower import BiPiperFollower
 from lerobot.robots.bi_piper_follower.config_bi_piper_follower import BiPiperFollowerConfig
 from lerobot.robots.robot import Robot
@@ -80,7 +78,10 @@ class BiPiperQuest3(Robot):
     # ── Feature descriptions (used by dataset schema) ──────────────────
 
     @property
-    def observation_features(self) -> dict[str, type]:
+    def observation_features(self) -> dict[str, type | tuple]:
+        if not self._mock:
+            return self._real.observation_features
+
         features: dict[str, type] = {}
         for side in ("left_", "right_"):
             for motor in _MOTORS:
@@ -89,37 +90,47 @@ class BiPiperQuest3(Robot):
 
     @property
     def action_features(self) -> dict[str, type]:
+        if not self._mock:
+            return self._real.action_features
         return self.observation_features
 
     # ── Robot interface ─────────────────────────────────────────────────
 
     @property
     def is_connected(self) -> bool:
+        if not self._mock:
+            return self._real.is_connected
         return self._is_connected
 
     def connect(self, calibrate: bool = True) -> None:
-        if self._is_connected:
+        if self.is_connected:
             return
         if not self._mock:
             self._real.connect()
-        self._is_connected = True
+        else:
+            self._is_connected = True
 
     @property
     def is_calibrated(self) -> bool:
+        if not self._mock:
+            return self._real.is_calibrated
         return True
 
     def calibrate(self) -> None:
-        pass
+        if not self._mock:
+            self._real.calibrate()
 
     def configure(self) -> None:
-        pass
+        if not self._mock:
+            self._real.configure()
 
     def disconnect(self) -> None:
-        if not self._is_connected:
+        if not self.is_connected:
             return
         if not self._mock:
             self._real.disconnect()
-        self._is_connected = False
+        else:
+            self._is_connected = False
 
     def get_observation(self) -> dict[str, Any]:
         if self._mock:
@@ -134,3 +145,8 @@ class BiPiperQuest3(Robot):
         if not self._mock:
             return self._real.send_action(action)
         return action
+
+    def get_record_action_from_follower(self) -> dict[str, float]:
+        if not self._mock:
+            return self._real.get_record_action_from_follower()
+        return self.get_observation()

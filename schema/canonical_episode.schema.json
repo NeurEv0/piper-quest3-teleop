@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "piper_canonical_v1",
+  "title": "Piper Quest 3 canonical episode",
+  "type": "object",
+  "required": ["metadata", "frames"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["episode_id", "operator_id", "task_id", "schema_version", "calibration_version", "robot_urdf_version", "teleop_commit", "control_commit", "camera_config", "object_initial_pose", "target_pose", "start_host_monotonic_ns", "end_host_monotonic_ns", "outcomes", "task_success", "failure_reason"],
+      "properties": {
+        "episode_id": {"type": "string", "minLength": 1},
+        "operator_id": {"type": "string", "minLength": 1},
+        "task_id": {"const": "piper_pick_place_v1"},
+        "schema_version": {"const": "piper_canonical_v1"},
+        "calibration_version": {"type": "string", "minLength": 1},
+        "robot_urdf_version": {"type": "string", "minLength": 1},
+        "teleop_commit": {"type": "string", "minLength": 7},
+        "control_commit": {"type": "string", "minLength": 7},
+        "camera_config": {"type": "array", "minItems": 1},
+        "object_initial_pose": {"$ref": "#/$defs/pose"},
+        "target_pose": {"$ref": "#/$defs/pose"},
+        "start_host_monotonic_ns": {"type": "integer", "minimum": 0},
+        "end_host_monotonic_ns": {"type": "integer", "minimum": 0},
+        "outcomes": {"type": "object"},
+        "task_success": {"type": "boolean"},
+        "failure_reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "frames": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/frame"}}
+  },
+  "$defs": {
+    "pose": {"type": "object", "required": ["frame", "position_m", "quaternion_xyzw"], "properties": {"frame": {"type": "string"}, "position_m": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}, "quaternion_xyzw": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}}}},
+    "frame": {"type": "object", "required": ["host_monotonic_ns", "phase", "source_index", "quest", "tcp_target", "command", "robot_feedback", "gripper", "cameras", "controller_mode", "safety_state"], "properties": {"host_monotonic_ns": {"type": "integer"}, "phase": {"type": "string"}, "source_index": {"type": "integer"}, "quest": {"type": "object"}, "tcp_target": {"type": "object"}, "command": {"type": "object"}, "robot_feedback": {"type": "object"}, "gripper": {"type": "object"}, "cameras": {"type": "array", "minItems": 1}, "controller_mode": {"type": "string"}, "safety_state": {"type": "string"}}}
+  }
+}

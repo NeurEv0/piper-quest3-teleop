@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "episode_id": "mock-000001", "operator_id": "mock-operator", "task_id": "piper_pick_place_v1", "schema_version": "piper_canonical_v1", "calibration_version": "mock-calib-v1", "robot_urdf_version": "piper-mock-v1", "teleop_commit": "5afe753", "control_commit": "5afe753",
+    "camera_config": [{"name": "cam_front", "serial": "MOCK", "width": 640, "height": 480, "fps": 30, "optical_frame": "cam_front_optical"}],
+    "object_initial_pose": {"frame": "robot_base", "position_m": [0.30, 0.00, 0.02], "quaternion_xyzw": [0, 0, 0, 1]},
+    "target_pose": {"frame": "robot_base", "position_m": [0.35, 0.08, 0.01], "quaternion_xyzw": [0, 0, 0, 1]},
+    "start_host_monotonic_ns": 1000000000, "end_host_monotonic_ns": 1034000000,
+    "outcomes": {"grasp_success": true, "lift_success": true, "transport_success": true, "place_success": true, "release_success": true},
+    "task_success": true, "failure_reason": "none"
+  },
+  "frames": [
+    {
+      "host_monotonic_ns": 1000000000, "phase": "reset", "source_index": 0,
+      "quest": {"pose": {"frame": "quest_right_controller", "position_m": [0, 0, 0], "quaternion_xyzw": [0, 0, 0, 1]}, "buttons": {"squeeze": false}, "device_time_ns": 900000000, "host_receive_ns": 999000000},
+      "tcp_target": {"T_base_tcp": {"frame": "robot_base", "position_m": [0.30, 0, 0.20], "quaternion_xyzw": [0, 0, 0, 1]}, "generated_ns": 999500000},
+      "command": {"q_command_rad": [0, 0, 0, 0, 0, 0], "sent_ns": 999800000, "ik_status": "ok", "safety_filter": "pass"},
+      "robot_feedback": {"q_actual_rad": [0, 0, 0, 0, 0, 0], "dq_actual_rad_s": [0, 0, 0, 0, 0, 0], "feedback_time_ns": 999900000, "host_receive_ns": 1000000000, "T_base_tcp_actual": {"frame": "robot_base", "position_m": [0.30, 0, 0.20], "quaternion_xyzw": [0, 0, 0, 1]}},
+      "gripper": {"command_m": 0.07, "actual_m": 0.07},
+      "cameras": [{"name": "cam_front", "source_index": 0, "device_time_ns": 990000000, "host_receive_ns": 999000000, "optical_frame": "cam_front_optical", "image_ref": "images/cam_front/000000.png", "decoded": true, "width": 640, "height": 480}],
+      "controller_mode": "ARMED", "safety_state": "NORMAL"
+    },
+    {
+      "host_monotonic_ns": 1033000000, "phase": "done", "source_index": 1,
+      "quest": {"pose": {"frame": "quest_right_controller", "position_m": [0.01, 0, 0], "quaternion_xyzw": [0, 0, 0, 1]}, "buttons": {"squeeze": false}, "device_time_ns": 933000000, "host_receive_ns": 1032000000},
+      "tcp_target": {"T_base_tcp": {"frame": "robot_base", "position_m": [0.35, 0.08, 0.20], "quaternion_xyzw": [0, 0, 0, 1]}, "generated_ns": 1032500000},
+      "command": {"q_command_rad": [0.1, 0.1, -0.1, 0, 0, 0], "sent_ns": 1032800000, "ik_status": "ok", "safety_filter": "pass"},
+      "robot_feedback": {"q_actual_rad": [0.099, 0.101, -0.1, 0, 0, 0], "dq_actual_rad_s": [0, 0, 0, 0, 0, 0], "feedback_time_ns": 1032900000, "host_receive_ns": 1033000000, "T_base_tcp_actual": {"frame": "robot_base", "position_m": [0.35, 0.08, 0.20], "quaternion_xyzw": [0, 0, 0, 1]}},
+      "gripper": {"command_m": 0.07, "actual_m": 0.07},
+      "cameras": [{"name": "cam_front", "source_index": 1, "device_time_ns": 1023000000, "host_receive_ns": 1032000000, "optical_frame": "cam_front_optical", "image_ref": "images/cam_front/000001.png", "decoded": true, "width": 640, "height": 480}],
+      "controller_mode": "IDLE", "safety_state": "NORMAL"
+    }
+  ]
+}
