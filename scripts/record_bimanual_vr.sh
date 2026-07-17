@@ -34,6 +34,7 @@ lerobot-record \
   --robot.right_can_name="${RIGHT_CAN}" \
   --teleop.type=bi_quest3_vr \
   --teleop.mock_vr=false \
+  --teleop.stream_camera_to_headset=false \
   --display_data=false \
   --dataset.repo_id="${REPO_ID}" \
   --dataset.root="${DATASET_ROOT}" \

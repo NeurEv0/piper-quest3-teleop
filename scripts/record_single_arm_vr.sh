@@ -32,6 +32,7 @@ lerobot-record \
   --robot.teleop_gripper_alpha=1.0 \
   --teleop.type=quest3_vr \
   --teleop.mock_vr=false \
+  --teleop.stream_camera_to_headset=false \
   --display_data=true \
   --dataset.repo_id="${REPO_ID}" \
   --dataset.root="${DATASET_ROOT}" \

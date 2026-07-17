@@ -108,10 +108,17 @@ class OpenTeleVision:
     def run(self):
         self.app.run()
 
-    ## Track controllers 
+    ## Track controllers
     async def on_controller_move(self, event, session, fps=60):
+        if not hasattr(self, '_evt_cnt'):
+            self._evt_cnt = 0
+        self._evt_cnt += 1
         data = event.value
         try:
+            # Print first 3 events + every 60th to confirm data is flowing
+            if self._evt_cnt <= 3 or self._evt_cnt % 60 == 0:
+                right_keys = list(data.get("rightState") or {}).keys() if isinstance(data.get("rightState"), dict) else "N/A"
+                print(f"[VR_EVT #{self._evt_cnt}] keys={sorted(data.keys())} rightState_keys={sorted(right_keys) if isinstance(right_keys, list) else right_keys} squeeze={data.get('rightState', {}).get('squeeze', 'MISSING') if isinstance(data.get('rightState'), dict) else 'NOT_DICT'}")
             # RIGHT
             right = data.get("right") # length-16 array
             if isinstance(right, (list, tuple)) and len(right) == 16:
@@ -227,6 +234,7 @@ class OpenTeleVision:
     ########################################################################
 
     async def main_image(self, session, fps=60):
+        print("[VR_SESSION] Vuer WebSocket session connected", flush=True)
         # Turn off grid
         session.set @ DefaultScene(grid=False, frameloop="always")
         
