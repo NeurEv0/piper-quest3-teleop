@@ -25,6 +25,7 @@ def main() -> int:
     parser.add_argument("--recovery-s", type=float, default=5.0)
     parser.add_argument("--ramp-s", type=float, default=0.8)
     parser.add_argument("--hold-s", type=float, default=0.2)
+    parser.add_argument("--repetitions", type=int, default=1)
     parser.add_argument("--speed-percent", type=int, default=5)
     parser.add_argument("--max-error-deg", type=float, default=3.0)
     parser.add_argument("--log", type=Path, required=True)
@@ -36,6 +37,8 @@ def main() -> int:
         raise SystemExit("E-stop service is not active")
     if not 0 < args.delta_deg <= 0.5 or not 1 <= args.speed_percent <= 10:
         raise SystemExit("unsafe delta or speed")
+    if not 1 <= args.repetitions <= 5:
+        raise SystemExit("repetitions must be in [1, 5]")
 
     from piper_sdk import C_PiperInterface_V2
 
@@ -92,16 +95,20 @@ def main() -> int:
                     time.sleep(max(0.0, period - (time.monotonic() - begin)))
 
             ramp("recover_safe", current, safe, args.recovery_s)
-            for joint in range(6):
-                for direction in (1.0, -1.0):
-                    target = safe.copy()
-                    target[joint] += direction * math.radians(args.delta_deg)
-                    label = f"j{joint + 1}_{'pos' if direction > 0 else 'neg'}"
-                    ramp(label + "_out", safe, target, args.ramp_s)
-                    for _ in range(max(1, round(args.hold_s * args.control_hz))):
-                        sample(label + "_hold", target)
-                        time.sleep(period)
-                    ramp(label + "_return", target, safe, args.ramp_s)
+            for repetition in range(1, args.repetitions + 1):
+                for joint in range(6):
+                    for direction in (1.0, -1.0):
+                        target = safe.copy()
+                        target[joint] += direction * math.radians(args.delta_deg)
+                        label = (
+                            f"rep{repetition}_j{joint + 1}_"
+                            f"{'pos' if direction > 0 else 'neg'}"
+                        )
+                        ramp(label + "_out", safe, target, args.ramp_s)
+                        for _ in range(max(1, round(args.hold_s * args.control_hz))):
+                            sample(label + "_hold", target)
+                            time.sleep(period)
+                        ramp(label + "_return", target, safe, args.ramp_s)
 
         _, final = read_joints(piper)
         print("GROUPED_OK", args.can, "final_error_deg", [round(math.degrees(a-b), 4) for a,b in zip(safe,final)])
