@@ -14,6 +14,11 @@ def init_mink(q_zero: np.ndarray):
     limits = [mink.ConfigurationLimit(model=model)]
     max_vel = float(getattr(config, "MINK_MAX_VEL", np.pi))
     max_velocities = {f"joint{i}": max_vel for i in range(1, 7)}
+    # Freeze the flange (joint6) to suppress wrist singularity. A zero velocity
+    # limit imposes 0 <= dq6 <= 0 inside the QP, so the remaining axes absorb
+    # the EE target instead of thrashing roll between joint4/joint6.
+    if getattr(config, "LOCK_JOINT6", False):
+        max_velocities["joint6"] = float(getattr(config, "LOCK_JOINT6_MAX_VEL", 0.0))
     limits.append(mink.VelocityLimit(model, max_velocities))
 
     solver = getattr(config, "MINK_SOLVER", "daqp")

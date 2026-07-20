@@ -33,6 +33,7 @@ try:
     from loop_rate_limiters import RateLimiter
 
     from .config import PIPER_MJCF_PATH, MINK_EE_SITE
+    from . import config as _cfg
     from .mapping.vr_mapper import VRToRobotMapper, VRMapperConfig
     from .control.ik_stepper import ik_step
     from .kinematics.piper_forward_kinematics import PiperForwardKinematics, DHType
@@ -115,11 +116,15 @@ class ArmVREngine:
             self._configuration = mink.Configuration(self._model)
 
             max_vel = np.pi
+            max_velocities = {f"joint{i}": max_vel for i in range(1, 7)}
+            # Freeze the flange (joint6) to suppress wrist singularity — see
+            # teleop/config.py LOCK_JOINT6. A zero velocity limit holds joint6
+            # at its current (zero) angle inside the IK QP.
+            if getattr(_cfg, "LOCK_JOINT6", False):
+                max_velocities["joint6"] = float(getattr(_cfg, "LOCK_JOINT6_MAX_VEL", 0.0))
             self._limits = [
                 mink.ConfigurationLimit(model=self._model),
-                mink.VelocityLimit(
-                    self._model, {f"joint{i}": max_vel for i in range(1, 7)}
-                ),
+                mink.VelocityLimit(self._model, max_velocities),
             ]
 
             ee_task = mink.FrameTask(
