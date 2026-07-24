@@ -1,0 +1,35 @@
+{
+  "profile": "piper.quest3.mcap.v1",
+  "container": "MCAP",
+  "clock_policy": {
+    "log_time": "host_wall_time_ns",
+    "payload_clock": "host_monotonic_ns",
+    "source_clock": "source_timestamp_ns"
+  },
+  "structured_encoding": "json",
+  "image_encoding": "piper.jpeg.v1",
+  "topics": {
+    "/episode/event": "recording lifecycle and operator labels",
+    "/episode/metadata": "task, scene, operator, robot, session, and code identity",
+    "/annotation/instruction": "episode-level English VLA language instruction",
+    "/annotation/language_action": "timestamped English action primitive annotation",
+    "/robot/command": "requested and actually sent dual-arm commands",
+    "/robot/state": "joint and gripper feedback exposed by the Piper adapter",
+    "/teleop/quest3/state": "controller poses, buttons, and event health",
+    "/system/diagnostics": "host, GPU, disk, loop, CAN, source, and recorder health",
+    "/system/capabilities": "present, absent, and offline-derived modalities",
+    "/calibration/snapshot": "immutable calibration snapshot for this episode",
+    "/tf_static": "measured static transforms, emitted only when calibration status is valid",
+    "/tf_static/status": "whether a valid transform tree can be constructed",
+    "/camera/{camera_name}/color/compressed": "timestamped JPEG with a PIMG v1 header"
+  },
+  "camera_names": ["cam_front", "cam_left_wrist", "cam_right_wrist"],
+  "required_topics": [
+    "/episode/event",
+    "/episode/metadata",
+    "/robot/command",
+    "/robot/state",
+    "/teleop/quest3/state",
+    "/system/capabilities"
+  ]
+}

@@ -18,6 +18,7 @@ Data flow per frame:
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, Optional
 
 import numpy as np
@@ -70,6 +71,7 @@ class BiQuest3VR(Teleoperator):
 
         self._cached_obs: Optional[dict] = None
         self._is_connected: bool = False
+        self._last_vr_sample: dict[str, Any] | None = None
 
         logger.info(
             "BiQuest3VR initialized (left=%s, right=%s, mock_vr=%s)",
@@ -153,8 +155,30 @@ class BiQuest3VR(Teleoperator):
             right_state = np.zeros(14, dtype=float)
             tv = None
 
-        left_action = self._left_engine.step(left_pose, left_state, tv=tv)
-        right_action = self._right_engine.step(right_pose, right_state, tv=tv)
+        sample_ns = time.monotonic_ns()
+        self._last_vr_sample = {
+            "host_monotonic_ns": sample_ns,
+            "left_pose_xyzw": np.asarray(left_pose, dtype=float).tolist(),
+            "right_pose_xyzw": np.asarray(right_pose, dtype=float).tolist(),
+            "left_state": np.asarray(left_state, dtype=float).tolist(),
+            "right_state": np.asarray(right_state, dtype=float).tolist(),
+            "event_status": (
+                self._vuer.controller_event_status
+                if self._vuer is not None and not self.config.mock_vr
+                else {"event_count": 0, "last_event_ns": sample_ns, "age_s": 0.0}
+            ),
+        }
+
+        # X+A is reserved as a cross-controller display chord. Do not let the
+        # same face buttons send either arm to zero when the chord is held.
+        left_control_state = np.asarray(left_state, dtype=float).copy()
+        right_control_state = np.asarray(right_state, dtype=float).copy()
+        if left_control_state[4] > 0.5 and right_control_state[4] > 0.5:
+            left_control_state[4] = 0.0
+            right_control_state[4] = 0.0
+
+        left_action = self._left_engine.step(left_pose, left_control_state, tv=tv)
+        right_action = self._right_engine.step(right_pose, right_control_state, tv=tv)
 
         action: dict[str, Any] = {}
         for key, value in left_action.items():
@@ -162,6 +186,14 @@ class BiQuest3VR(Teleoperator):
         for key, value in right_action.items():
             action[f"right_{key}"] = value
         return action
+
+
+    @property
+    def last_control_processing(self) -> dict[str, Any]:
+        return {
+            "ik": {"status": "pass", "arms": {"left": self._left_engine.last_diagnostics.get("ik", {}), "right": self._right_engine.last_diagnostics.get("ik", {})}},
+            "smoothing_delta_rad": self._left_engine.last_diagnostics.get("smoothing_delta_rad", []) + self._right_engine.last_diagnostics.get("smoothing_delta_rad", []),
+        }
 
     def send_feedback(self, feedback: dict[str, Any]) -> None:
         pass
@@ -172,3 +204,8 @@ class BiQuest3VR(Teleoperator):
     def mode(self) -> tuple[str, str]:
         """Current (left, right) state machine modes."""
         return self._left_engine.mode, self._right_engine.mode
+
+    @property
+    def last_vr_sample(self) -> dict[str, Any] | None:
+        """Latest raw Quest poses/states with host freshness information."""
+        return None if self._last_vr_sample is None else dict(self._last_vr_sample)

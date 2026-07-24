@@ -1,4 +1,5 @@
 import time
+import os
 from vuer import Vuer
 from vuer.schemas import ImageBackground, DefaultScene
 from vuer.schemas import MotionControllers
@@ -7,7 +8,12 @@ import numpy as np
 import asyncio
 from pathlib import Path
 from .piper_arm_skeleton_vuer import VuerRobotSkeleton  
-from vuer.schemas import Sphere
+
+
+VR_DISPLAY_ASPECT = 16.0 / 9.0
+VR_DISPLAY_HEIGHT = 5.2
+VR_DISPLAY_POSITION = [0, 0, 3]
+
 
 def robot_to_vuer_pos(p_r):
     x, y, z = p_r
@@ -28,7 +34,11 @@ class OpenTeleVision:
         self.img_height, self.img_width = img_shape[:2] ## height/width based on one eye (left or right) 
 
         # ngrok - tunneling service that makes a locally running server accessible from anywhere on the internet
-        if ngrok: ## If true, open via ngrok-provided https 
+        # Use plain HTTP when VUER_HTTP=1 (e.g. USB cable / adb reverse):
+        # http://localhost IS a secure context in Chromium -> WebXR works, and
+        # no self-signed cert is involved (fixes the Quest3 "not private" error).
+        use_http = os.environ.get("VUER_HTTP") == "1"
+        if ngrok or use_http: ## No local cert: ngrok terminates TLS, or HTTP over USB
             self.app = Vuer(host='0.0.0.0', queries=dict(grid=False), queue_len=3) ## queries dict(grid=False) turns off Vuer default UI grid display. queue_len=3 limits event queue length (prevents lag)
         else: ## Use certificate directly
             self.app = Vuer(host='0.0.0.0', cert=cert_file, key=key_file, queries=dict(grid=False), queue_len=3)
@@ -100,6 +110,13 @@ class OpenTeleVision:
         # Camera aspect
         self.aspect_shared = Value('d', 1.0, lock=True) ## 1x1 (camera aspect)
 
+        # Host-side freshness signals used by preflight and Canonical Raw.
+        self.controller_event_count = Value('q', 0, lock=True)
+        self.last_controller_event_ns = Value('q', 0, lock=True)
+        # This flag controls only the Quest display. Camera capture and the
+        # shared image producer continue running while the background is hidden.
+        self.video_display_enabled_shared = Value('b', self._stream_images, lock=True)
+
         self.process = Process(target=self.run)
         self.process.daemon = True
         self.process.start()
@@ -115,9 +132,14 @@ class OpenTeleVision:
         self._evt_cnt += 1
         data = event.value
         try:
+            with self.controller_event_count.get_lock():
+                self.controller_event_count.value += 1
+            with self.last_controller_event_ns.get_lock():
+                self.last_controller_event_ns.value = time.monotonic_ns()
             # Print first 3 events + every 60th to confirm data is flowing
             if self._evt_cnt <= 3 or self._evt_cnt % 60 == 0:
-                right_keys = list(data.get("rightState") or {}).keys() if isinstance(data.get("rightState"), dict) else "N/A"
+                right_state = data.get("rightState")
+                right_keys = sorted(right_state.keys()) if isinstance(right_state, dict) else "N/A"
                 print(f"[VR_EVT #{self._evt_cnt}] keys={sorted(data.keys())} rightState_keys={sorted(right_keys) if isinstance(right_keys, list) else right_keys} squeeze={data.get('rightState', {}).get('squeeze', 'MISSING') if isinstance(data.get('rightState'), dict) else 'NOT_DICT'}")
             # RIGHT
             right = data.get("right") # length-16 array
@@ -125,9 +147,11 @@ class OpenTeleVision:
                 self.right_controller_shared[:] = right
 
             # RIGHT state
-            rs = data.get("rightState") or {}
+            rs = data.get("rightState")
             # right_state_shared 
-            if isinstance(rs, dict):
+            # WebXR intermittently emits an empty controller-state dictionary.
+            # Treat it as a dropped sample, not a physical button release.
+            if isinstance(rs, dict) and rs:
                 tp = rs.get("touchpadValue") or [0.0, 0.0]
                 ts = rs.get("thumbstickValue") or [0.0, 0.0]
 
@@ -156,8 +180,8 @@ class OpenTeleVision:
                 self.left_controller_shared[:] = left
 
             # LEFT state
-            ls = data.get("leftState") or {}
-            if isinstance(ls, dict):
+            ls = data.get("leftState")
+            if isinstance(ls, dict) and ls:
                 tp = ls.get("touchpadValue") or [0.0, 0.0]
                 ts = ls.get("thumbstickValue") or [0.0, 0.0]
 
@@ -241,10 +265,11 @@ class OpenTeleVision:
         # Controllers
         session.upsert @ MotionControllers(stream=True, key="motion-controller", left=True, right=True,)
         
+        images_visible = False
         try:
             while True:
                 # ── Camera image streaming (only when enabled) ──────────
-                if self._stream_images and self.img_array is not None:
+                if self.video_display_enabled and self._stream_images and self.img_array is not None:
                     display_image = self.img_array
 
                     session.upsert(
@@ -256,10 +281,10 @@ class OpenTeleVision:
                         key="left-image",
                         interpolate=True,
                         # fixed=True,
-                        aspect=1.66667,
+                        aspect=VR_DISPLAY_ASPECT,
                         # distanceToCamera=0.5,
-                        height = 2,
-                        position=[0, 1, 3],
+                        height=VR_DISPLAY_HEIGHT,
+                        position=VR_DISPLAY_POSITION,
                         # rotation=[0, 0, 0],
                         layers=1, 
                     ),
@@ -271,15 +296,19 @@ class OpenTeleVision:
                         key="right-image",
                         interpolate=True,
                         # fixed=True,
-                        aspect=1.66667,
+                        aspect=VR_DISPLAY_ASPECT,
                         # distanceToCamera=0.5,
-                        height = 2,
-                        position=[0, 1, 3],
+                        height=VR_DISPLAY_HEIGHT,
+                        position=VR_DISPLAY_POSITION,
                         # rotation=[0, 0, 0],
                         layers=2, 
                     )],
                     to="bgChildren",
                     )
+                    images_visible = True
+                elif images_visible:
+                    session.remove @ ["left-image", "right-image"]
+                    images_visible = False
 
                 # Draw robot skeleton
                 with self.robot_n_joints.get_lock(), self.robot_joints_shared.get_lock():
@@ -328,6 +357,25 @@ class OpenTeleVision:
         left_state shape: (14,)
         """
         return np.array(self.left_state_shared[:], dtype=float)
+
+    @property
+    def video_display_enabled(self) -> bool:
+        with self.video_display_enabled_shared.get_lock():
+            return bool(self.video_display_enabled_shared.value)
+
+    def set_video_display_enabled(self, enabled: bool) -> None:
+        with self.video_display_enabled_shared.get_lock():
+            self.video_display_enabled_shared.value = bool(enabled)
+
+    def close(self, timeout_s: float = 2.0) -> None:
+        process = getattr(self, "process", None)
+        if process is None or not process.is_alive():
+            return
+        process.terminate()
+        process.join(timeout_s)
+        if process.is_alive():
+            process.kill()
+            process.join(timeout_s)
 
     @property
     def aspect(self):

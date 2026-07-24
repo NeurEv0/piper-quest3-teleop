@@ -43,6 +43,23 @@ class PiperDriver:
         except Exception as e:
             print("[PiperDriver] DisableArm failed:", e)
 
+    def close(self):
+        """Disable the arm and release the SDK connection (idempotent)."""
+        if not self.connected:
+            return
+
+        try:
+            self.disable()
+            time.sleep(0.2)
+        finally:
+            try:
+                disconnect = getattr(self._piper, "DisconnectPort", None)
+                if callable(disconnect):
+                    disconnect()
+            finally:
+                self.connected = False
+                self._piper = None
+
     # =============================
     # Motion control
     # =============================

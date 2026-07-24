@@ -165,6 +165,7 @@ class ArmVREngine:
         self._sent_joint_zero: bool = False
         self._prev_squeeze: bool = False
         self._grip_ema: float = 0.0  # 0=open, 1=closed
+        self._last_diagnostics: dict[str, Any] = {}
 
     # ── Properties ────────────────────────────────────────────────────────
 
@@ -177,6 +178,11 @@ class ArmVREngine:
     def last_joint_command(self) -> np.ndarray:
         """Last computed 6-axis joint command (rad)."""
         return self._last_q.copy()
+
+
+    @property
+    def last_diagnostics(self) -> dict[str, Any]:
+        return dict(self._last_diagnostics)
 
     def _controller_anchor(self, tv) -> Optional[np.ndarray]:
         """Read the controller position anchor from the Vuer handle, if any."""
@@ -204,6 +210,7 @@ class ArmVREngine:
         """
         pose7 = np.asarray(pose7, dtype=float).reshape(-1)
         state14 = np.asarray(state14, dtype=float).reshape(-1)
+        previous_q = self._last_q.copy()
 
         # ---- 1. Parse controller state -----------------------------------
         squeeze_holding = float(state14[_IDX_SQUEEZE]) > 0.5
@@ -279,9 +286,13 @@ class ArmVREngine:
                 self._mode = "HOLD"
 
         # ---- 5. MINK IK ---------------------------------------------------
+        ik_status = "not_run"
+        ik_reason = "state_machine_bypass"
         if self._mode != "AT_ZERO" and self._model is not None:
             try:
                 dt = float(self._rate.dt)
+                ik_status = "pass"
+                ik_reason = None
                 self._last_q = ik_step(
                     self._model,
                     self._data,
@@ -299,6 +310,8 @@ class ArmVREngine:
                 )
             except Exception:
                 logger.debug("MINK IK failed — keeping last_q", exc_info=True)
+                ik_status = "fail"
+                ik_reason = "mink_exception"
         elif self._mode == "AT_ZERO":
             self._last_q[:] = 0.0
 
@@ -307,4 +320,8 @@ class ArmVREngine:
             f"joint_{i + 1}.pos": float(self._last_q[i]) for i in range(6)
         }
         action["gripper.pos"] = float(gripper_m)
+        self._last_diagnostics = {
+            "ik": {"status": ik_status, "reason_code": ik_reason, "target_matrix_row_major": target_T.reshape(-1).tolist(), "result_joint_position_rad": self._last_q.tolist()},
+            "smoothing_delta_rad": (self._last_q - previous_q).tolist(),
+        }
         return action

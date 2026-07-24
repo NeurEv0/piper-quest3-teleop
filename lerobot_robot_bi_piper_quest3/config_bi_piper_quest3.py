@@ -74,3 +74,14 @@ class BiPiperQuest3Config(RobotConfig):
     drag_kp: float = 3.0
     drag_kd: float = 0.8
     drag_vel_thresh: float = 0.015
+
+    # Normal shutdown: return to the stable disabled pose captured before
+    # enable, then disable. These limits intentionally favor a slow park.
+    shutdown_min_duration_s: float = 6.0
+    shutdown_max_duration_s: float = 30.0
+    shutdown_max_joint_speed_rad_s: float = 0.20
+    shutdown_max_gripper_speed_m_s: float = 0.015
+    shutdown_rate_hz: float = 30.0
+    shutdown_settle_s: float = 1.0
+    shutdown_joint_tolerance_rad: float = 0.08
+    shutdown_gripper_tolerance_m: float = 0.01

@@ -120,8 +120,8 @@ lerobot-record \
 conda activate lerobot
 cd /home/ylhp-e-ai/ZHITAI_1t/piper-quest3-teleop
 
-# 便捷脚本（可用环境变量覆盖：TASK、NUM_EPISODES、DATASET_ROOT 等）
-scripts/record_bimanual_vr.sh
+# 旧在线录制脚本已归档到仓库外，仅供历史恢复
+/home/ylhp-e-ai/ZHITAI_1t/legacy_piper_lerobot_recording_20260722/record_bimanual_vr.sh
 
 # ……或显式命令：
 lerobot-record \
@@ -188,8 +188,6 @@ piper-quest3-teleop/
 │   ├── piper/                         # Piper 驱动（已保留）
 │   └── app.py                         # 独立入口（仍可使用）
 ├── scripts/
-│   ├── record_single_arm_vr.sh        # 单臂本地保存启动脚本
-│   ├── record_bimanual_vr.sh          # 双臂本地保存启动脚本
 │   └── setup_orbbec_sdk.sh            # 重新内置 Orbbec SDK
 └── tests/
     └── test_mock_recording.py         # 无硬件测试（单臂 + 双臂）

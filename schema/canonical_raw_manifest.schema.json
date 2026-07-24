@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "piper_canonical_raw_v1",
+  "title": "Piper Canonical Raw episode manifest",
+  "type": "object",
+  "required": ["schema_version", "episode_id", "created_host_monotonic_ns", "files", "stream_counts"],
+  "properties": {
+    "schema_version": {"const": "piper_canonical_raw_v1"},
+    "episode_id": {"type": "string", "minLength": 1},
+    "created_host_monotonic_ns": {"type": "integer", "minimum": 1},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "bytes", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "stream_counts": {
+      "type": "object",
+      "required": ["control", "robot_feedback", "vr_input", "camera", "event"]
+    }
+  }
+}

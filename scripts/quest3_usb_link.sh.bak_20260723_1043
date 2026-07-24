@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# USB link for Quest3 <-> this PC (adb reverse), so the headset browser can
+# reach the Vuer teleop server at https://localhost:8012 over the USB cable
+# instead of WiFi.
+#
+# Vuer uses two ports:
+#   8012  HTTPS page
+#   8013  WSS  (controller stream)
+#
+# Run this ONCE after plugging in the Quest3 (and re-run if you replug the
+# cable or reboot the headset). Then start teleop as usual.
+#
+# Usage:
+#   scripts/quest3_usb_link.sh          # set up forwarding
+#   scripts/quest3_usb_link.sh --status # show current forwards
+#   scripts/quest3_usb_link.sh --clear  # remove forwarding
+# ---------------------------------------------------------------------------
+set -euo pipefail
+
+PORTS=(8012 8013)
+
+# Pick the real Quest3 (a "device" line), skip offline emulators.
+QUEST="$(adb devices | awk '$2=="device"{print $1; exit}')"
+if [[ -z "${QUEST:-}" ]]; then
+  echo "[usb] No authorized adb device found." >&2
+  echo "      Plug in the Quest3, put it on, and accept the USB debugging prompt." >&2
+  adb devices
+  exit 1
+fi
+echo "[usb] Quest3 device: ${QUEST}"
+
+case "${1:-}" in
+  --status)
+    adb -s "${QUEST}" reverse --list
+    exit 0
+    ;;
+  --clear)
+    for p in "${PORTS[@]}"; do adb -s "${QUEST}" reverse --remove "tcp:${p}" 2>/dev/null || true; done
+    echo "[usb] Cleared. Current forwards:"
+    adb -s "${QUEST}" reverse --list
+    exit 0
+    ;;
+esac
+
+for p in "${PORTS[@]}"; do
+  adb -s "${QUEST}" reverse "tcp:${p}" "tcp:${p}"
+  echo "[usb]  tcp:${p} -> localhost:${p}  OK"
+done
+
+echo ""
+echo "======================================================================"
+echo " USB link ready. In the Quest3 browser open:"
+echo "     https://localhost:8012?ws=wss://localhost:8012"
+echo "     Accept the certificate warning once, then enter VR."
+echo ""
+echo " Start teleop with USB=1 so it serves HTTPS/WSS over adb reverse:"
+echo "     USB=1 bash scripts/run_mink_teleop_quest3.sh"
+echo "======================================================================"
+adb -s "${QUEST}" reverse --list

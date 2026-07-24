@@ -1,0 +1,2 @@
+SUBSYSTEM=="net", KERNEL=="can*", ATTRS{serial}=="003000495547571120343930", SYMLINK+="can_right"
+SUBSYSTEM=="net", KERNEL=="can*", ATTRS{serial}=="001A002A5547570420303135", SYMLINK+="can_left"

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "piper.vla.language.v1",
+  "title": "Piper English VLA Language Annotation",
+  "type": "object",
+  "required": ["annotation_schema", "language_action", "primitive", "arm", "object", "target", "source", "host_monotonic_ns", "host_wall_time_ns"],
+  "properties": {
+    "annotation_schema": {"const": "piper.vla.language.v1"},
+    "language_action": {"type": "string", "minLength": 3, "maxLength": 300},
+    "primitive": {"enum": ["approach", "grasp", "lift", "transport", "place", "release", "push", "pull", "rotate", "align", "hold", "retract", "reset"]},
+    "arm": {"enum": ["left", "right", "bimanual"]},
+    "object": {"type": "string", "minLength": 3, "maxLength": 100},
+    "target": {"type": "string", "minLength": 3, "maxLength": 100},
+    "source": {"enum": ["operator_dashboard", "voice_transcript", "offline_annotation"]},
+    "host_monotonic_ns": {"type": "integer", "minimum": 0},
+    "host_wall_time_ns": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": true
+}

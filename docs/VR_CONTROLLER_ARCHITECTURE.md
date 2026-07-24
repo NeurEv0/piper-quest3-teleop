@@ -1,7 +1,5 @@
 # VR 双臂遥操作系统 — 手柄连接架构详解
 
-> 本文档详细说明 piper-quest3-teleop 项目中，Quest3 VR 头显的左右手柄如何与系统建立连接、数据如何流转、以及如何映射到 Piper 机械臂的运动控制。
-
 ---
 
 ## 目录
@@ -26,7 +24,7 @@
 
 ## 1. 整体架构概览
 
-该系统通过 **Quest3 VR 头显** 的两个手柄（左手+右手）实现对一台或两台 **Piper 机械臂** 的遥操作控制。系统有两套并行的入口路径：
+该系统通过 **Quest3 VR 头显** 的两个手柄（左手+右手）实现对双臂 **Piper 机械臂** 的遥操作控制。系统有两套并行的入口路径：
 
 | 路径 | 入口文件 | 用途 |
 |------|----------|------|
@@ -157,16 +155,7 @@ https://<服务器IP>:<端口>?ws=wss://<服务器IP>:<端口>
 
 Vuer 使用同一端口同时处理 HTTPS 页面请求和 WebSocket (WSS) 实时数据流。`queue_len=3` 限制事件队列长度以防止延迟累积。
 
-### 2.5 ngrok 隧道模式（可选）
-
-如果无法在局域网内直连（例如服务器和 Quest3 不在同一网段），可以使用 ngrok 隧道。
-
-编辑 [teleop/TeleVision.py](teleop/TeleVision.py)，在初始化 `OpenTeleVision` 时设置 `ngrok=True`（第 31–32 行的逻辑），ngrok 会提供公网 HTTPS 地址，Quest3 通过该公网地址连接。此模式下不需要本地 `cert.pem`/`key.pem`。
-
-> **注意**：使用 ngrok 会引入额外延迟，不建议用于精细遥操作任务。
-
-
-### 2.6 USB 网络共享模式（无 WiFi 环境）
+### 2.6 USB 网络共享模式
 
 如果服务器和 Quest3 所在环境没有可用的 WiFi 网络，可以通过 **USB 数据线 + 反向网络共享** 的方式建立连接：
 
@@ -249,17 +238,7 @@ adb devices -l
 
 # 3. 配置端口转发
 adb -s 2G97C5ZHCS04C7 reverse tcp:8012 tcp:8012
-
-# 4. 启动 Vuer 服务
-conda activate lerobot
-cd ~/ZHITAI_1t/piper-quest3-teleop
-python -m teleop.teleop_real_arm --dry-run
-
-# 5. Quest3 浏览器先访问 https://localhost:8012 信任证书，
-#    再打开 https://vuer.ai?ws=wss://localhost:8012
 ```
-
-> **注意**：URL 中必须使用 `localhost` 而非主机 IP，因为 `adb reverse` 将 Quest3 端的 `localhost:8012` 转发到主机的 `8012` 端口。
 
 #### 2.6.6 故障排查
 
@@ -333,7 +312,7 @@ conda activate lerobot
 cd /home/ylhp-e-ai/ZHITAI_1t/piper-quest3-teleop
 
 # 使用便捷脚本（推荐）
-bash scripts/record_single_arm_vr.sh
+bash /home/ylhp-e-ai/ZHITAI_1t/legacy_piper_lerobot_recording_20260722/record_single_arm_vr.sh
 
 # 或手动指定参数
 lerobot-record \
@@ -359,7 +338,7 @@ conda activate lerobot
 cd /home/ylhp-e-ai/ZHITAI_1t/piper-quest3-teleop
 
 # 使用便捷脚本（推荐）
-bash scripts/record_bimanual_vr.sh
+bash /home/ylhp-e-ai/ZHITAI_1t/legacy_piper_lerobot_recording_20260722/record_bimanual_vr.sh
 
 # 或手动指定参数
 lerobot-record \

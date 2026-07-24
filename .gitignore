@@ -19,3 +19,7 @@ third_party/orbbec_sdk/lib/
 
 Log/
 validation_logs/
+
+.claude/
+.vscode/
+.pytest_cache/
