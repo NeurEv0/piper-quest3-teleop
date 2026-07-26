@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "piper_canonical_raw_cleaning_ready_rows_v1",
+  "title": "Piper Canonical Raw cleaning-ready row tables",
+  "type": "object",
+  "required": ["control", "robot_feedback", "vr_input", "camera_timestamps", "events"],
+  "properties": {
+    "control": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/control_row"}
+    },
+    "robot_feedback": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/robot_feedback_row"}
+    },
+    "vr_input": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/vr_input_row"}
+    },
+    "camera_timestamps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/camera_timestamp_row"}
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/event_row"}
+    },
+    "language_actions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/language_action_row"}
+    }
+  },
+  "$defs": {
+    "base_row": {
+      "type": "object",
+      "required": ["row_sequence_id", "host_monotonic_ns", "host_wall_time_ns", "source_timestamp_ns"],
+      "properties": {
+        "sample_id": {"type": "string", "minLength": 1},
+        "control_sample_index": {"type": "integer", "minimum": 0},
+        "row_sequence_id": {"type": "integer", "minimum": 0},
+        "host_monotonic_ns": {"type": "integer", "minimum": 1},
+        "host_wall_time_ns": {"type": "integer", "minimum": 1},
+        "source_timestamp_ns": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": true
+    },
+    "control_row": {
+      "allOf": [
+        {"$ref": "#/$defs/base_row"},
+        {
+          "type": "object",
+          "required": [
+            "phase",
+            "left_mode",
+            "right_mode",
+            "action_request_generated_host_monotonic_ns",
+            "action_send_start_host_monotonic_ns",
+            "action_send_end_host_monotonic_ns",
+            "action_send_result_received_host_monotonic_ns",
+            "action_requested_vector",
+            "action_sent_vector",
+            "joint_command_requested",
+            "joint_command_sent",
+            "gripper_target",
+            "gripper_command_sent",
+            "control_processing",
+            "safety_state"
+          ],
+          "properties": {
+            "phase": {"type": "string", "minLength": 1},
+            "left_mode": {"type": "string", "minLength": 1},
+            "right_mode": {"type": "string", "minLength": 1},
+            "action_request_generated_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "action_send_start_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "action_send_end_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "action_send_result_received_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "action_requested_vector": {"type": "array", "minItems": 14, "maxItems": 14, "items": {"type": "number"}},
+            "action_sent_vector": {"type": "array", "minItems": 14, "maxItems": 14, "items": {"type": "number"}},
+            "joint_command_requested": {"type": "object", "additionalProperties": true},
+            "joint_command_sent": {"type": "object", "additionalProperties": true},
+            "gripper_target": {"type": "object", "additionalProperties": true},
+            "gripper_command_sent": {"type": "object", "additionalProperties": true},
+            "control_processing": {"type": "object", "additionalProperties": true},
+            "safety_state": {"type": "string", "minLength": 1},
+            "action_requested_json": {"type": "string"},
+            "action_sent_json": {"type": "string"},
+            "action_requested": {"type": "object"},
+            "action_sent": {"type": "object"},
+            "teleop_sample_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "robot_feedback_host_monotonic_ns": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "robot_feedback_row": {
+      "allOf": [
+        {"$ref": "#/$defs/base_row"},
+        {
+          "type": "object",
+          "required": [
+            "robot_feedback_source_timestamp_unavailable_reason",
+            "robot_feedback_read_start_host_monotonic_ns",
+            "robot_feedback_host_receive_monotonic_ns",
+            "robot_feedback_enqueue_host_monotonic_ns",
+            "joint_state",
+            "gripper_measured_state",
+            "command_error",
+            "safety_state_typed"
+          ],
+          "properties": {
+            "robot_feedback_source_timestamp_ns": {"type": ["integer", "null"], "minimum": 1},
+            "robot_feedback_source_timestamp_unavailable_reason": {
+              "anyOf": [
+                {"type": "null"},
+                {"enum": [
+                  "hardware_timestamp_unavailable",
+                  "quest_device_timestamp_unavailable",
+                  "camera_sdk_timestamp_unavailable",
+                  "sdk_unavailable",
+                  "no_controller_event",
+                  "source_unavailable",
+                  "legacy_missing",
+                  "synthetic_fixture",
+                  "not_recorded"
+                ]}
+              ]
+            },
+            "robot_feedback_read_start_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "robot_feedback_host_receive_monotonic_ns": {"type": "integer", "minimum": 1},
+            "robot_feedback_enqueue_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "joint_state": {"type": "object", "additionalProperties": true},
+            "gripper_measured_state": {"type": "object", "additionalProperties": true},
+            "command_error": {"type": "object", "additionalProperties": true},
+            "safety_state_typed": {"type": "object", "additionalProperties": true},
+            "observation": {"type": "object", "additionalProperties": true},
+            "observation_json": {"type": "string"},
+            "source_timestamp_reason": {"type": "string"}
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "vr_input_row": {
+      "allOf": [
+        {"$ref": "#/$defs/base_row"},
+        {
+          "type": "object",
+          "required": [
+            "controller_event_source_timestamp_unavailable_reason",
+            "controller_event_host_receive_unavailable_reason",
+            "controller_event_enqueue_host_monotonic_ns",
+            "left_pose_xyzw",
+            "right_pose_xyzw"
+          ],
+          "properties": {
+            "controller_event_source_timestamp_ns": {"type": ["integer", "null"], "minimum": 1},
+            "controller_event_source_timestamp_unavailable_reason": {
+              "anyOf": [
+                {"type": "null"},
+                {"enum": [
+                  "hardware_timestamp_unavailable",
+                  "quest_device_timestamp_unavailable",
+                  "camera_sdk_timestamp_unavailable",
+                  "sdk_unavailable",
+                  "no_controller_event",
+                  "source_unavailable",
+                  "legacy_missing",
+                  "synthetic_fixture",
+                  "not_recorded"
+                ]}
+              ]
+            },
+            "controller_event_host_receive_monotonic_ns": {"type": ["integer", "null"], "minimum": 1},
+            "controller_event_host_receive_unavailable_reason": {
+              "anyOf": [
+                {"type": "null"},
+                {"enum": [
+                  "hardware_timestamp_unavailable",
+                  "quest_device_timestamp_unavailable",
+                  "camera_sdk_timestamp_unavailable",
+                  "sdk_unavailable",
+                  "no_controller_event",
+                  "source_unavailable",
+                  "legacy_missing",
+                  "synthetic_fixture",
+                  "not_recorded"
+                ]}
+              ]
+            },
+            "controller_event_enqueue_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "controller_event_age_s": {"type": ["number", "null"], "minimum": 0},
+            "controller_event_count": {"type": ["integer", "null"], "minimum": 0},
+            "left_pose_xyzw": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"type": "number"}},
+            "right_pose_xyzw": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"type": "number"}},
+            "left_state": {"type": ["object", "string", "null"], "additionalProperties": true},
+            "right_state": {"type": ["object", "string", "null"], "additionalProperties": true},
+            "event_status": {"type": "object", "additionalProperties": true},
+            "event_status_json": {"type": "string"}
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "camera_timestamp_row": {
+      "allOf": [
+        {"$ref": "#/$defs/base_row"},
+        {
+          "type": "object",
+          "required": [
+            "camera_name",
+            "camera_stream_sequence_id",
+            "camera_sensor_timestamp_unavailable_reason",
+            "camera_host_receive_monotonic_ns",
+            "camera_enqueue_host_monotonic_ns",
+            "camera_write_host_monotonic_ns",
+            "optical_frame",
+            "image_ref",
+            "decoded",
+            "width",
+            "height"
+          ],
+          "properties": {
+            "camera_name": {"type": "string", "minLength": 1},
+            "camera_stream_sequence_id": {"type": "integer", "minimum": 0},
+            "camera_sensor_timestamp_ns": {"type": ["integer", "null"], "minimum": 1},
+            "camera_sensor_timestamp_unavailable_reason": {
+              "anyOf": [
+                {"type": "null"},
+                {"enum": [
+                  "hardware_timestamp_unavailable",
+                  "quest_device_timestamp_unavailable",
+                  "camera_sdk_timestamp_unavailable",
+                  "sdk_unavailable",
+                  "no_controller_event",
+                  "source_unavailable",
+                  "legacy_missing",
+                  "synthetic_fixture",
+                  "not_recorded"
+                ]}
+              ]
+            },
+            "camera_host_receive_monotonic_ns": {"type": "integer", "minimum": 1},
+            "camera_enqueue_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "camera_write_host_monotonic_ns": {"type": "integer", "minimum": 1},
+            "optical_frame": {"type": "string", "minLength": 1},
+            "image_ref": {"type": "string", "minLength": 1},
+            "decoded": {"type": "boolean"},
+            "width": {"type": "integer", "minimum": 1},
+            "height": {"type": "integer", "minimum": 1},
+            "video_frame_index": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "event_row": {
+      "type": "object",
+      "required": ["host_monotonic_ns", "event"],
+      "properties": {
+        "host_monotonic_ns": {"type": "integer", "minimum": 1},
+        "host_wall_time_ns": {"type": "integer", "minimum": 1},
+        "event": {"type": "string", "minLength": 1},
+        "event_type": {"type": "string", "minLength": 1},
+        "episode_id": {"type": "string", "minLength": 1},
+        "reason": {"type": ["string", "null"]},
+        "source": {"type": "string", "minLength": 1},
+        "payload": {"type": "object", "additionalProperties": true}
+      },
+      "additionalProperties": true
+    },
+    "language_action_row": {
+      "type": "object",
+      "required": ["primitive", "arm", "language_action"],
+      "properties": {
+        "primitive": {"type": "string", "minLength": 1},
+        "arm": {"type": "string", "minLength": 1},
+        "language_action": {"type": "string", "minLength": 1},
+        "host_monotonic_ns": {"type": "integer", "minimum": 1},
+        "host_wall_time_ns": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

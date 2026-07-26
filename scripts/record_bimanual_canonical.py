@@ -23,7 +23,7 @@ import cv2
 import numpy as np
 
 from canonical_raw.action_state import typed_control_fields, typed_feedback_fields
-from canonical_raw.cameras import CameraMode, SwitchableCameraManager
+from canonical_raw.cameras import CameraMode, SwitchableCameraManager, SynchronizedCameraRecorder
 from canonical_raw.contract import CAPTURE_CONTRACT_VERSION, collection_profile, default_action_space_contract
 from canonical_raw.dashboard import OperatorDashboard
 from canonical_raw.preflight import CheckResult, PreflightReport, run_static_preflight, validate_cleaning_ready
@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--right-can", default="can_right")
     parser.add_argument("--fps", type=float, default=30.0)
     parser.add_argument("--camera-fps", type=float, default=30.0)
-    parser.add_argument("--output-root", type=Path, default=Path("/home/ylhp-e-ai/ZHITAI_1t/piper_canonical_raw"))
+    parser.add_argument("--output-root", type=Path, default=Path("/home/ylhp-e-ai/ZHITAI_1t/TELEOP/piper_canonical_raw"))
     parser.add_argument("--dashboard-host", default="0.0.0.0")
     parser.add_argument("--dashboard-port", type=int, default=8020)
     parser.add_argument("--robot-connect-timeout", type=float, default=15.0)
@@ -368,10 +368,12 @@ class RecordingCoordinator:
         scene_id: str,
         calibration_snapshot: dict[str, Any],
         capture_defaults: dict[str, Any],
+        synchronized_camera_recorder: SynchronizedCameraRecorder | None = None,
     ):
         self.recorder = recorder
         self.teleop = teleop
         self.cameras = cameras
+        self.synchronized_camera_recorder = synchronized_camera_recorder
         self.static_preflight = static_preflight
         self.code_commit = code_commit
         self.robot_id = robot_id
@@ -581,6 +583,8 @@ class RecordingCoordinator:
                 payload={"camera_mode": self.cameras.mode.value, "capture_contract_version": CAPTURE_CONTRACT_VERSION},
             )
             self.recorder.start_episode(metadata)
+            if self.synchronized_camera_recorder is not None:
+                self.synchronized_camera_recorder.start_episode()
             self._last_task_id = task_id
             self.episode_started_ns = time.monotonic_ns()
             self._episode_require_cameras = self.cameras.mode == CameraMode.MOSAIC
@@ -597,6 +601,8 @@ class RecordingCoordinator:
             reason = str(payload.get("failure_reason") or "task_failed")
             outcome = "SUCCESS" if success else "FAILURE"
             self.set_visual_notice(f"SAVING - MARKED {outcome}", "info", 10.0)
+            if self.synchronized_camera_recorder is not None:
+                self.synchronized_camera_recorder.stop_episode()
             path = self.recorder.finish_episode(
                 task_success=success,
                 failure_reason=reason,
@@ -629,6 +635,8 @@ class RecordingCoordinator:
     def abort_episode(self, payload: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
             self.recorder.record_session_event("dashboard_command", source="dashboard", payload={"command": "abort"})
+            if self.synchronized_camera_recorder is not None:
+                self.synchronized_camera_recorder.stop_episode()
             path = self.recorder.abort_episode(str(payload.get("reason") or "operator_abort"), source="dashboard")
             self.episode_started_ns = None
             self.last_outcome = {"aborted": True, "path": str(path)}
@@ -638,6 +646,8 @@ class RecordingCoordinator:
     def reset_episode(self, payload: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
             self.recorder.record_session_event("dashboard_command", source="dashboard", payload={"command": "reset"})
+            if self.synchronized_camera_recorder is not None:
+                self.synchronized_camera_recorder.stop_episode()
             path = self.recorder.abort_episode(
                 str(payload.get("reason") or "operator_reset"),
                 source="dashboard", event_type="reset",
@@ -778,9 +788,14 @@ def main() -> int:
         _connect_robot_with_timeout(robot, args.robot_connect_timeout)
         robot_connected = True
 
-        cameras = SwitchableCameraManager(
-            lambda: make_cameras_from_configs(_default_cameras()),
+        camera_configs = _default_cameras()
+        synchronized_camera_recorder = SynchronizedCameraRecorder(
+            tuple(camera_configs.keys()),
             recorder.record_camera,
+        )
+        cameras = SwitchableCameraManager(
+            lambda: make_cameras_from_configs(camera_configs),
+            synchronized_camera_recorder,
         )
         cameras.set_mode(initial_camera_mode)
 
@@ -805,6 +820,7 @@ def main() -> int:
                 "control_rate_hz": args.fps,
                 "allow_no_cameras": args.allow_no_cameras,
             },
+            synchronized_camera_recorder=synchronized_camera_recorder,
         )
         dashboard = OperatorDashboard(
             host=args.dashboard_host,

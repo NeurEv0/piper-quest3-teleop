@@ -1,0 +1,92 @@
+{
+  "camera_sync": {
+    "camera_frame_counts": {
+      "cam_front": 12,
+      "cam_left_wrist": 12,
+      "cam_right_wrist": 12
+    },
+    "first_frame_skew_ms": 0.0,
+    "last_frame_skew_ms": 0.0,
+    "max_frame_count_skew": 0
+  },
+  "created_host_monotonic_ns": 1700000000386666663,
+  "episode_id": "episode_cleaning_ready_fixture",
+  "files": [
+    {
+      "bytes": 9598,
+      "path": "calibration_snapshot.json",
+      "sha256": "5c6b04c2cb2b95ff20c1227631aa76ed2ff8a40ad51250cd2698a69427163e5c"
+    },
+    {
+      "bytes": 4410,
+      "path": "camera_cam_front.mp4",
+      "sha256": "4000551aa3abfcbd52c0d3611750ee71e5adf1f9e0085bf0010d67ac04737559"
+    },
+    {
+      "bytes": 3990,
+      "path": "camera_cam_left_wrist.mp4",
+      "sha256": "b4029687d0ff1eec30fa6658238d0cd108c8c73230bf77ff22a18a7b138ba662"
+    },
+    {
+      "bytes": 3512,
+      "path": "camera_cam_right_wrist.mp4",
+      "sha256": "d4cf472b5ee12af0c9e91cc6596db408111aad094f18f555f17b1d4e94fce013"
+    },
+    {
+      "bytes": 8672,
+      "path": "camera_timestamps.parquet",
+      "sha256": "f00a02aa6c89c6cfbae4d9bc286e0350e3da0d52d169f7b8b51349304780e00f"
+    },
+    {
+      "bytes": 29616,
+      "path": "control.parquet",
+      "sha256": "cdd00cbd46ae48b764542528036332703158a079979dc0db2b7f6e5cb4b923e9"
+    },
+    {
+      "bytes": 551,
+      "path": "events.jsonl",
+      "sha256": "0b07d8c234cab985a667f762a97a103887f05ecc1c92247d4b4464e7046a7737"
+    },
+    {
+      "bytes": 2987,
+      "path": "events.parquet",
+      "sha256": "e2419039ba6ed82d47530a3080be5aae35e12d18bfa0d22254f32d4bb030cadc"
+    },
+    {
+      "bytes": 20697,
+      "path": "metadata.json",
+      "sha256": "d745b67678b6037b1acc1ed3da4d689a8fd3704fd891d2fe7d83041f1d0136ae"
+    },
+    {
+      "bytes": 18538,
+      "path": "robot_feedback.parquet",
+      "sha256": "e5f8812e8a0f2ccb1df060dbdce48529cfafc39a1d908ac48de56252b9edb211"
+    },
+    {
+      "bytes": 10602,
+      "path": "validation.json",
+      "sha256": "ae65041e9f784412444bf9e558a2b019317c5b9db0df94d78727abd4cfe330cf"
+    },
+    {
+      "bytes": 7776,
+      "path": "vr_input.parquet",
+      "sha256": "e4af816dbf0d95809c599231560f789e408f83e987763c3c1cc209394ce377e7"
+    }
+  ],
+  "schema_version": "piper_canonical_raw_v1",
+  "stream_counts": {
+    "camera": 36,
+    "control": 12,
+    "event": 2,
+    "robot_feedback": 12,
+    "vr_input": 12
+  },
+  "stream_sequence_counts": {
+    "camera": 36,
+    "control": 12,
+    "event": 2,
+    "language_action": 0,
+    "robot_feedback": 12,
+    "vr_input": 12
+  }
+}

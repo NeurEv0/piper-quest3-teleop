@@ -23,7 +23,17 @@
     },
     "stream_counts": {
       "type": "object",
-      "required": ["control", "robot_feedback", "vr_input", "camera", "event"]
+      "required": ["control", "robot_feedback", "vr_input", "camera", "event"],
+      "properties": {
+        "control": {"type": "integer", "minimum": 0},
+        "robot_feedback": {"type": "integer", "minimum": 0},
+        "vr_input": {"type": "integer", "minimum": 0},
+        "camera": {"type": "integer", "minimum": 0},
+        "event": {"type": "integer", "minimum": 0},
+        "language_action": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
     }
-  }
+  },
+  "additionalProperties": true
 }

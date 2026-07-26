@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
+from collections import deque
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable
@@ -132,6 +133,153 @@ class CameraCaptureThread:
     def close(self) -> None:
         self._stop.set()
         self._thread.join(timeout=3.0)
+
+
+@dataclass
+class _PendingCameraFrame:
+    camera_name: str
+    frame: np.ndarray
+    host_monotonic_ns: int
+    source_timestamp_ns: int | None
+    sensor_timestamp_ns: int | None
+
+
+class SynchronizedCameraRecorder:
+    """Group independently arriving camera frames before they enter the writer."""
+
+    def __init__(
+        self,
+        camera_names: tuple[str, ...] | list[str],
+        on_frame: Callable[..., bool | None],
+        *,
+        max_skew_ms: float = 40.0,
+        max_buffered_frames_per_camera: int = 8,
+    ):
+        if not camera_names:
+            raise ValueError("at least one camera is required")
+        self.camera_names = tuple(camera_names)
+        if len(set(self.camera_names)) != len(self.camera_names):
+            raise ValueError("camera names must be unique")
+        self._on_frame = on_frame
+        self._max_skew_ns = int(max_skew_ms * 1_000_000)
+        self._max_skew_ms = float(max_skew_ms)
+        self._max_buffered = max(1, int(max_buffered_frames_per_camera))
+        self._active = False
+        self._buffers: dict[str, deque[_PendingCameraFrame]] = {
+            name: deque() for name in self.camera_names
+        }
+        self._lock = threading.Lock()
+        self._next_group_id = 0
+        self._dropped_frames = 0
+        self._emitted_groups = 0
+
+    @property
+    def dropped_frames(self) -> int:
+        with self._lock:
+            return self._dropped_frames
+
+    @property
+    def emitted_groups(self) -> int:
+        with self._lock:
+            return self._emitted_groups
+
+    def reset(self) -> None:
+        with self._lock:
+            self._reset_locked()
+
+    def set_active(self, active: bool) -> None:
+        with self._lock:
+            active = bool(active)
+            if self._active != active:
+                self._reset_locked()
+            self._active = active
+
+    def start_episode(self) -> None:
+        self.set_active(True)
+
+    def stop_episode(self) -> None:
+        self.set_active(False)
+
+    def _reset_locked(self) -> None:
+        for frames in self._buffers.values():
+            frames.clear()
+        self._next_group_id = 0
+        self._dropped_frames = 0
+        self._emitted_groups = 0
+
+    def __call__(
+        self,
+        camera_name: str,
+        frame: np.ndarray,
+        host_monotonic_ns: int,
+        *,
+        source_timestamp_ns: int | None = None,
+        sensor_timestamp_ns: int | None = None,
+    ) -> bool:
+        with self._lock:
+            if not self._active:
+                return False
+            if camera_name not in self._buffers:
+                return False
+            pending = _PendingCameraFrame(
+                camera_name=str(camera_name),
+                frame=np.asarray(frame, dtype=np.uint8).copy(),
+                host_monotonic_ns=int(host_monotonic_ns),
+                source_timestamp_ns=source_timestamp_ns,
+                sensor_timestamp_ns=sensor_timestamp_ns,
+            )
+            camera_buffer = self._buffers[camera_name]
+            camera_buffer.append(pending)
+            while len(camera_buffer) > self._max_buffered:
+                camera_buffer.popleft()
+                self._dropped_frames += 1
+            return self._emit_ready_groups_locked()
+
+    def _emit_ready_groups_locked(self) -> bool:
+        emitted = False
+        while all(self._buffers[name] for name in self.camera_names):
+            heads = {name: self._buffers[name][0] for name in self.camera_names}
+            oldest_name, oldest = min(heads.items(), key=lambda item: item[1].host_monotonic_ns)
+            newest = max(frame.host_monotonic_ns for frame in heads.values())
+            skew_ns = newest - oldest.host_monotonic_ns
+            if skew_ns > self._max_skew_ns:
+                self._buffers[oldest_name].popleft()
+                self._dropped_frames += 1
+                continue
+
+            group_id = self._next_group_id
+            self._next_group_id += 1
+            skew_ms = round(skew_ns / 1e6, 6)
+            dropped_before_group = self._dropped_frames
+            group = [self._buffers[name].popleft() for name in self.camera_names]
+            for item in group:
+                result = self._on_frame(
+                    item.camera_name,
+                    item.frame,
+                    item.host_monotonic_ns,
+                    source_timestamp_ns=item.source_timestamp_ns,
+                    sensor_timestamp_ns=item.sensor_timestamp_ns,
+                    camera_stream_sequence_id=group_id,
+                    camera_sync_group_skew_ms=skew_ms,
+                    camera_sync_group_size=len(self.camera_names),
+                    camera_alignment_dropped_frames=dropped_before_group,
+                    camera_sync_threshold_ms=self._max_skew_ms,
+                )
+                if result is False:
+                    self._dropped_frames += 1
+            self._emitted_groups += 1
+            emitted = True
+        return emitted
+
+    def status(self) -> dict[str, object]:
+        with self._lock:
+            return {
+                "emitted_groups": self._emitted_groups,
+                "dropped_frames": self._dropped_frames,
+                "active": self._active,
+                "buffered_frames": {name: len(frames) for name, frames in self._buffers.items()},
+                "max_skew_ms": self._max_skew_ms,
+            }
 
 
 class CameraManager:

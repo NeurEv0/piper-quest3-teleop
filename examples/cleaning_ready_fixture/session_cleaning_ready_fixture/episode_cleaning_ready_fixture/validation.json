@@ -1,0 +1,399 @@
+{
+  "checks": [
+    {
+      "detail": "sample coverage 1.000000 is below 1.0",
+      "name": "sample_coverage",
+      "reason_code": "sample_coverage.below_minimum",
+      "status": "pass",
+      "threshold": {
+        "min": 1.0
+      },
+      "value": 1.0
+    },
+    {
+      "detail": "control frequency 30.000 Hz must be within [27.000, 33.000] Hz",
+      "name": "control_loop_frequency",
+      "reason_code": "control.frequency_out_of_range",
+      "status": "pass",
+      "threshold": {
+        "max_hz": 33.0,
+        "min_hz": 27.0
+      },
+      "value": 30.0
+    },
+    {
+      "detail": "control jitter P95 is 0.0 ms",
+      "name": "control_loop_jitter_p95",
+      "reason_code": "control.jitter_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_ms": 8.0
+      },
+      "value": 0.0
+    },
+    {
+      "detail": "control max gap is 33.333333 ms",
+      "name": "control_loop_max_gap",
+      "reason_code": "control.max_gap_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_ms": 100.0
+      },
+      "value": 33.333333
+    },
+    {
+      "detail": "Quest stale age P95 is 10.0 ms",
+      "name": "quest_stale_age_p95",
+      "reason_code": "quest.stale_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_ms": 100.0
+      },
+      "value": 10.0
+    },
+    {
+      "detail": "robot feedback stale age P95 is 0.0 ms",
+      "name": "robot_feedback_stale_p95",
+      "reason_code": "robot_feedback.stale_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_ms": 100.0
+      },
+      "value": 0.0
+    },
+    {
+      "detail": "camera frame count skew is 0 frames",
+      "name": "camera_frame_count_skew",
+      "reason_code": "camera.frame_count_skew_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_frames": 1
+      },
+      "value": 0
+    },
+    {
+      "detail": "camera write latency P95 is 2.0 ms",
+      "name": "camera_write_latency_p95",
+      "reason_code": "camera.write_latency_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_ms": 100.0
+      },
+      "value": 2.0
+    },
+    {
+      "detail": "multicamera max sync skew is 10.0 ms",
+      "name": "multicamera_sync",
+      "reason_code": "camera.multicamera_sync_exceeded",
+      "status": "pass",
+      "threshold": {
+        "max_ms": 40.0
+      },
+      "value": 10.0
+    }
+  ],
+  "errors": [],
+  "metrics": {
+    "camera.cam_front.fps": 30.000000300000004,
+    "camera.cam_front.frames_from_timestamps": 12,
+    "camera.cam_left_wrist.fps": 30.000000300000004,
+    "camera.cam_left_wrist.frames_from_timestamps": 12,
+    "camera.cam_right_wrist.fps": 30.000000300000004,
+    "camera.cam_right_wrist.frames_from_timestamps": 12,
+    "camera.multicamera_sync_ms": {
+      "max": 10.0,
+      "median": 10.0,
+      "p95": 10.0,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "camera_cam_front.mp4.frames": 12,
+    "camera_cam_left_wrist.mp4.frames": 12,
+    "camera_cam_right_wrist.mp4.frames": 12,
+    "camera_frame_count_skew": 0,
+    "camera_names": [
+      "cam_front",
+      "cam_left_wrist",
+      "cam_right_wrist"
+    ],
+    "camera_timestamps.parquet.invalid_source_timestamp_count": 0,
+    "camera_timestamps.parquet.row_sequence_max": 35,
+    "camera_timestamps.parquet.rows": 36,
+    "camera_undecoded": 0,
+    "capture_contract_version": "piper_capture_cleaning_ready_v1",
+    "control.parquet.invalid_source_timestamp_count": 0,
+    "control.parquet.row_sequence_max": 11,
+    "control.parquet.rows": 12,
+    "latency.camera_enqueue_ms": {
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "sample_count": 36,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.camera_receive_ms": {
+      "max": null,
+      "median": null,
+      "p95": null,
+      "sample_count": 0,
+      "status": "unavailable",
+      "unavailable_reason": "no_samples",
+      "unit": "ms"
+    },
+    "latency.camera_write_ms": {
+      "max": 2.0,
+      "median": 2.0,
+      "p95": 2.0,
+      "sample_count": 36,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.command_result_latency_ms": {
+      "max": 0.5,
+      "median": 0.5,
+      "p95": 0.5,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.command_send_latency_ms": {
+      "max": 0.5,
+      "median": 0.5,
+      "p95": 0.5,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.feedback_enqueue_latency_ms": {
+      "max": 1.0,
+      "median": 1.0,
+      "p95": 1.0,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.feedback_latency_ms": {
+      "max": 2.0,
+      "median": 2.0,
+      "p95": 2.0,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.quest_enqueue_latency_ms": {
+      "max": null,
+      "median": null,
+      "p95": null,
+      "sample_count": 0,
+      "status": "unavailable",
+      "unavailable_reason": "no_samples",
+      "unit": "ms"
+    },
+    "latency.quest_stale_age_ms": {
+      "max": 10.0,
+      "median": 10.0,
+      "p95": 10.0,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "latency.robot_feedback_stale_age_ms": {
+      "max": 0.0,
+      "median": 0.0,
+      "p95": 0.0,
+      "sample_count": 12,
+      "status": "available",
+      "unavailable_reason": null,
+      "unit": "ms"
+    },
+    "robot_feedback.parquet.invalid_source_timestamp_count": 0,
+    "robot_feedback.parquet.row_sequence_max": 11,
+    "robot_feedback.parquet.rows": 12,
+    "sample_sync.common_sample_count": 12,
+    "sample_sync.control.sample_count": 12,
+    "sample_sync.control.unique_sample_count": 12,
+    "sample_sync.coverage_rate": 1.0,
+    "sample_sync.robot_feedback.sample_count": 12,
+    "sample_sync.robot_feedback.unique_sample_count": 12,
+    "sample_sync.union_sample_count": 12,
+    "sample_sync.vr_input.sample_count": 12,
+    "sample_sync.vr_input.unique_sample_count": 12,
+    "streams.camera.cam_front": {
+      "drop_count": 22,
+      "gap_ms": {
+        "max": 33.333333,
+        "median": 33.333333,
+        "p95": 33.333333,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "jitter_ms": {
+        "max": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "measured_frequency_hz": 30.0,
+      "sample_count": 12,
+      "timestamp_monotonic": true
+    },
+    "streams.camera.cam_left_wrist": {
+      "drop_count": 22,
+      "gap_ms": {
+        "max": 33.333333,
+        "median": 33.333333,
+        "p95": 33.333333,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "jitter_ms": {
+        "max": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "measured_frequency_hz": 30.0,
+      "sample_count": 12,
+      "timestamp_monotonic": true
+    },
+    "streams.camera.cam_right_wrist": {
+      "drop_count": 22,
+      "gap_ms": {
+        "max": 33.333333,
+        "median": 33.333333,
+        "p95": 33.333333,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "jitter_ms": {
+        "max": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "measured_frequency_hz": 30.0,
+      "sample_count": 12,
+      "timestamp_monotonic": true
+    },
+    "streams.control": {
+      "drop_count": 0,
+      "gap_ms": {
+        "max": 33.333333,
+        "median": 33.333333,
+        "p95": 33.333333,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "jitter_ms": {
+        "max": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "measured_frequency_hz": 30.0,
+      "sample_count": 12,
+      "timestamp_monotonic": true
+    },
+    "streams.robot_feedback": {
+      "drop_count": 0,
+      "gap_ms": {
+        "max": 33.333333,
+        "median": 33.333333,
+        "p95": 33.333333,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "jitter_ms": {
+        "max": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "measured_frequency_hz": 30.0,
+      "sample_count": 12,
+      "timestamp_monotonic": true
+    },
+    "streams.vr_input": {
+      "drop_count": 0,
+      "gap_ms": {
+        "max": 33.333333,
+        "median": 33.333333,
+        "p95": 33.333333,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "jitter_ms": {
+        "max": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "sample_count": 11,
+        "status": "available",
+        "unavailable_reason": null,
+        "unit": "ms"
+      },
+      "measured_frequency_hz": 30.0,
+      "sample_count": 12,
+      "timestamp_monotonic": true
+    },
+    "thresholds": {
+      "camera_frame_count_skew_max": 1,
+      "camera_write_latency_p95_ms_max": 100.0,
+      "control_jitter_p95_ms_max": 8.0,
+      "control_max_gap_ms": 100.0,
+      "control_rate_max_ratio": 1.1,
+      "control_rate_min_ratio": 0.9,
+      "multicamera_sync_ms_max": 40.0,
+      "quest_stale_age_p95_ms_max": 100.0,
+      "robot_feedback_stale_p95_ms_max": 100.0,
+      "sample_coverage_min": 1.0
+    },
+    "video_files": [
+      "camera_cam_front.mp4",
+      "camera_cam_left_wrist.mp4",
+      "camera_cam_right_wrist.mp4"
+    ],
+    "vr_input.parquet.invalid_source_timestamp_count": 0,
+    "vr_input.parquet.row_sequence_max": 11,
+    "vr_input.parquet.rows": 12
+  },
+  "reason_codes": [],
+  "valid": true,
+  "warnings": []
+}

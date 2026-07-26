@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Stop the Canonical Raw / MCAP capture service without leaving stale ports.
+# Operator-facing stop entry for VLA capture.
+# Refuses to interrupt active recording unless --force is explicitly supplied.
 set -euo pipefail
 
 FORCE=0

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Launch real dual-Piper Quest3 teleoperation with Canonical Raw recording.
+# Internal launcher for real dual-Piper Quest3 Canonical Raw recording.
+# Operators should enter through scripts/start_vla_capture.sh and scripts/stop_vla_capture.sh.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -13,7 +14,7 @@ unset VUER_HTTP
 
 LEFT_CAN="${LEFT_CAN:-can_left}"
 RIGHT_CAN="${RIGHT_CAN:-can_right}"
-OUTPUT_ROOT="${OUTPUT_ROOT:-/home/ylhp-e-ai/ZHITAI_1t/piper_canonical_raw}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/home/ylhp-e-ai/ZHITAI_1t/TELEOP/piper_canonical_raw}"
 DASHBOARD_PORT="${DASHBOARD_PORT:-8020}"
 ENABLE_MCAP="${ENABLE_MCAP:-0}"
 AUTO_PREPARE_CAN="${AUTO_PREPARE_CAN:-1}"

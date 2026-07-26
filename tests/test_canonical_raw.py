@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import json
 import socket
+import threading
 import sys
 import tempfile
 import time
@@ -21,7 +22,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from canonical_raw.preflight import run_static_preflight
-from canonical_raw.cameras import CameraMode, SwitchableCameraManager
+from canonical_raw.cameras import CameraMode, SwitchableCameraManager, SynchronizedCameraRecorder
 from canonical_raw.dashboard import OperatorDashboard
 from canonical_raw.recorder import AsyncCanonicalRecorder, RecorderState
 from canonical_raw.validator import validate_episode
@@ -108,6 +109,162 @@ def test_canonical_raw_round_trip() -> None:
             assert not (episode_path / "raw.mcap").exists()
             assert len(list(episode_path.glob("camera_*.mp4"))) == 3
         finally:
+            recorder.close()
+
+
+
+
+def test_synchronized_camera_recorder_groups_async_three_camera_frames() -> None:
+    with tempfile.TemporaryDirectory(prefix="canonical_sync_camera_test_") as temp:
+        root = Path(temp)
+        recorder = AsyncCanonicalRecorder(
+            output_root=root,
+            session_metadata={"test": True},
+            camera_fps=30.0,
+        )
+        try:
+            recorder.start_episode(
+                {
+                    "episode_id": "episode_sync_camera",
+                    "operator_id": "test_operator",
+                    "task_id": "test_task",
+                    "camera_mode": "mosaic",
+                    "language_instruction": "Move the test object to the target location.",
+                }
+            )
+            camera_names = ("cam_front", "cam_left_wrist", "cam_right_wrist")
+            synchronized = SynchronizedCameraRecorder(
+                camera_names,
+                recorder.record_camera,
+                max_skew_ms=40.0,
+            )
+            synchronized.start_episode()
+            rng = np.random.default_rng(17)
+            base = time.monotonic_ns() - 1_000_000_000
+            for index in range(10):
+                stamp = base + index * 33_333_333
+                recorder.record_row(
+                    "control",
+                    {
+                        "host_monotonic_ns": stamp,
+                        "host_wall_time_ns": time.time_ns(),
+                        "left_mode": "TELEOP",
+                        "right_mode": "TELEOP",
+                        "action_requested_json": "{}",
+                        "action_sent_json": "{}",
+                    },
+                )
+                recorder.record_row(
+                    "robot_feedback",
+                    {
+                        "host_monotonic_ns": stamp,
+                        "host_wall_time_ns": time.time_ns(),
+                        "observation_json": "{}",
+                    },
+                )
+                recorder.record_row(
+                    "vr_input",
+                    {
+                        "host_monotonic_ns": stamp,
+                        "host_wall_time_ns": time.time_ns(),
+                        "left_pose_xyzw": [0.0] * 7,
+                        "right_pose_xyzw": [0.0] * 7,
+                    },
+                )
+
+            offsets_ms = {
+                "cam_front": (0, 33, 66, 99, 132, 165, 198, 231),
+                "cam_left_wrist": (50, 83, 116, 149, 182, 215),
+                "cam_right_wrist": (52, 85, 118, 151, 184, 217),
+            }
+            arrivals = sorted(
+                (base + offset * 1_000_000, name)
+                for name, offsets in offsets_ms.items()
+                for offset in offsets
+            )
+            for stamp, name in arrivals:
+                frame = rng.integers(0, 256, size=(72, 96, 3), dtype=np.uint8)
+                synchronized(name, frame, stamp)
+
+            assert synchronized.emitted_groups == 6
+            assert synchronized.dropped_frames >= 1
+            synchronized.stop_episode()
+            episode_path = recorder.finish_episode(task_success=True, failure_reason="none")
+            report = validate_episode(episode_path)
+            assert report.valid, report.errors
+            assert report.metrics["camera.multicamera_sync_ms"]["max"] <= 40.0
+
+            import pyarrow.parquet as pq
+
+            camera_rows = pq.read_table(episode_path / "camera_timestamps.parquet").to_pylist()
+            counts = {name: 0 for name in camera_names}
+            groups: dict[int, list[dict[str, object]]] = {}
+            for row in camera_rows:
+                counts[str(row["camera_name"])] += 1
+                groups.setdefault(int(row["camera_stream_sequence_id"]), []).append(row)
+            assert counts == {name: 6 for name in camera_names}
+            assert sorted(groups) == list(range(6))
+            assert all(len(rows) == 3 for rows in groups.values())
+            assert all(
+                sorted(int(row["video_frame_index"]) for row in camera_rows if row["camera_name"] == name)
+                == list(range(6))
+                for name in camera_names
+            )
+        finally:
+            recorder.close()
+
+
+
+
+def test_synchronized_camera_recorder_active_state_does_not_drain_recorder_queue() -> None:
+    with tempfile.TemporaryDirectory(prefix="canonical_sync_race_test_") as temp:
+        recorder = AsyncCanonicalRecorder(
+            output_root=Path(temp),
+            session_metadata={"test": True},
+            camera_fps=30.0,
+            camera_queue_size=32,
+        )
+        camera_names = ("cam_front", "cam_left_wrist", "cam_right_wrist")
+        synchronized = SynchronizedCameraRecorder(camera_names, recorder.record_camera)
+        stop = threading.Event()
+        failures: list[BaseException] = []
+        frame = np.zeros((24, 32, 3), dtype=np.uint8)
+
+        def spam_camera_path(offset: int) -> None:
+            index = offset
+            try:
+                while not stop.is_set():
+                    name = camera_names[index % len(camera_names)]
+                    synchronized(name, frame, time.monotonic_ns())
+                    index += 1
+                    time.sleep(0.0005)
+            except BaseException as exc:  # pragma: no cover - reported below
+                failures.append(exc)
+
+        threads = [threading.Thread(target=spam_camera_path, args=(index,), daemon=True) for index in range(6)]
+        for thread in threads:
+            thread.start()
+        try:
+            for index in range(4):
+                recorder.start_episode(
+                    {
+                        "episode_id": f"episode_sync_race_{index}",
+                        "operator_id": "test_operator",
+                        "task_id": "race_test",
+                        "camera_mode": "mosaic",
+                        "language_instruction": "Move the test object to the target location.",
+                    }
+                )
+                synchronized.start_episode()
+                time.sleep(0.03)
+                synchronized.stop_episode()
+                recorder.finish_episode(task_success=True, failure_reason="none")
+            assert not failures
+            assert not hasattr(synchronized, "_is_active")
+        finally:
+            stop.set()
+            for thread in threads:
+                thread.join(timeout=1.0)
             recorder.close()
 
 

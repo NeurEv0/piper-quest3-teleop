@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "piper_canonical_raw_calibration_snapshot_v1",
+  "title": "Piper Canonical Raw calibration snapshot",
+  "type": "object",
+  "required": [
+    "calibration_version",
+    "status",
+    "tf_status",
+    "robot_id",
+    "sources",
+    "camera_serials",
+    "frame_ids",
+    "camera_intrinsics",
+    "transforms",
+    "dynamic_tf",
+    "limitations"
+  ],
+  "properties": {
+    "calibration_version": {"type": "string", "minLength": 1},
+    "status": {"enum": ["missing", "usable_with_limitations", "usable", "calibrated", "verified", "valid"]},
+    "tf_status": {"enum": ["missing", "usable_with_limitations", "usable", "calibrated", "verified", "valid"]},
+    "robot_id": {"type": "string", "minLength": 1},
+    "imported_at": {"type": "string", "minLength": 1},
+    "sources": {
+      "type": "object",
+      "required": ["registry", "static_transforms"],
+      "properties": {
+        "registry": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          },
+          "additionalProperties": true
+        },
+        "static_transforms": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "camera_serials": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "frame_ids": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "camera_intrinsics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["frame_id", "width", "height", "distortion_model", "K", "D", "source_path", "source_sha256"],
+        "properties": {
+          "frame_id": {"type": "string", "minLength": 1},
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1},
+          "distortion_model": {"type": "string", "minLength": 1},
+          "K": {"type": "array", "minItems": 9, "maxItems": 9, "items": {"type": "number"}},
+          "D": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "number"}},
+          "source_path": {"type": "string", "minLength": 1},
+          "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "transforms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["parent_frame", "child_frame", "translation_m", "quaternion_xyzw", "rpy_rad", "confidence", "source_key"],
+        "properties": {
+          "parent_frame": {"type": "string", "minLength": 1},
+          "child_frame": {"type": "string", "minLength": 1},
+          "translation_m": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+          "quaternion_xyzw": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+          "rpy_rad": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+          "confidence": {"enum": ["design", "nominal", "operator_confirmed", "solved", "mixed"]},
+          "source_key": {"type": "string", "minLength": 1},
+          "rmse": {"type": "number", "minimum": 0},
+          "poses": {"type": "integer", "minimum": 0},
+          "pairs": {"type": "integer", "minimum": 0},
+          "reprojection_error_px": {"type": "number", "minimum": 0},
+          "published_parent_override": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "dynamic_tf": {
+      "type": "object",
+      "required": ["status", "source", "note"],
+      "properties": {
+        "status": {"type": "string", "minLength": 1},
+        "source": {"type": "string", "minLength": 1},
+        "note": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "additionalProperties": true
+}

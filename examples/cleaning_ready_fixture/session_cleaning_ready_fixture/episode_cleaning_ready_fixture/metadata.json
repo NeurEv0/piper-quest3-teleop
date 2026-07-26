@@ -1,0 +1,725 @@
+{
+  "action_semantics": {
+    "controller.command_t": "robot.send_action input/output",
+    "policy.action_t": "derived by data_postprocess from the selected action_space",
+    "record_action_from_follower": "unknown",
+    "robot.executed_t": "robot encoder feedback from robot_feedback stream",
+    "teleop.intent_t": "vr_controller_pose_and_buttons",
+    "version": "piper_action_semantics_v1"
+  },
+  "action_semantics_version": "piper_action_semantics_v1",
+  "action_space": {
+    "conversion_version": "lerobot_feature_dict_to_si_v1",
+    "dimension": 14,
+    "ordered_dimensions": [
+      {
+        "command_limits": {
+          "max": 2.618,
+          "min": -2.618
+        },
+        "frame_id": "left_arm_base",
+        "index": 0,
+        "measured_field_path": "robot_feedback.observation.left_joint_1.pos",
+        "name": "left_joint_1",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.left_joint_1.pos",
+        "source_field_path": "control.action_requested.left_joint_1.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 3.14,
+          "min": 0.0
+        },
+        "frame_id": "left_arm_base",
+        "index": 1,
+        "measured_field_path": "robot_feedback.observation.left_joint_2.pos",
+        "name": "left_joint_2",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.left_joint_2.pos",
+        "source_field_path": "control.action_requested.left_joint_2.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 0.0,
+          "min": -2.697
+        },
+        "frame_id": "left_arm_base",
+        "index": 2,
+        "measured_field_path": "robot_feedback.observation.left_joint_3.pos",
+        "name": "left_joint_3",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.left_joint_3.pos",
+        "source_field_path": "control.action_requested.left_joint_3.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 1.832,
+          "min": -1.832
+        },
+        "frame_id": "left_arm_base",
+        "index": 3,
+        "measured_field_path": "robot_feedback.observation.left_joint_4.pos",
+        "name": "left_joint_4",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.left_joint_4.pos",
+        "source_field_path": "control.action_requested.left_joint_4.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 1.22,
+          "min": -1.22
+        },
+        "frame_id": "left_arm_base",
+        "index": 4,
+        "measured_field_path": "robot_feedback.observation.left_joint_5.pos",
+        "name": "left_joint_5",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.left_joint_5.pos",
+        "source_field_path": "control.action_requested.left_joint_5.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 3.14,
+          "min": -3.14
+        },
+        "frame_id": "left_arm_base",
+        "index": 5,
+        "measured_field_path": "robot_feedback.observation.left_joint_6.pos",
+        "name": "left_joint_6",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.left_joint_6.pos",
+        "source_field_path": "control.action_requested.left_joint_6.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 0.07,
+          "min": 0.0
+        },
+        "frame_id": "left_gripper",
+        "index": 6,
+        "measured_field_path": "robot_feedback.observation.left_gripper.pos",
+        "name": "left_gripper_opening",
+        "quantity": "gripper_opening",
+        "sent_field_path": "control.action_sent.left_gripper.pos",
+        "source_field_path": "control.action_requested.left_gripper.pos",
+        "unit": "m"
+      },
+      {
+        "command_limits": {
+          "max": 2.618,
+          "min": -2.618
+        },
+        "frame_id": "right_arm_base",
+        "index": 7,
+        "measured_field_path": "robot_feedback.observation.right_joint_1.pos",
+        "name": "right_joint_1",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.right_joint_1.pos",
+        "source_field_path": "control.action_requested.right_joint_1.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 3.14,
+          "min": 0.0
+        },
+        "frame_id": "right_arm_base",
+        "index": 8,
+        "measured_field_path": "robot_feedback.observation.right_joint_2.pos",
+        "name": "right_joint_2",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.right_joint_2.pos",
+        "source_field_path": "control.action_requested.right_joint_2.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 0.0,
+          "min": -2.697
+        },
+        "frame_id": "right_arm_base",
+        "index": 9,
+        "measured_field_path": "robot_feedback.observation.right_joint_3.pos",
+        "name": "right_joint_3",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.right_joint_3.pos",
+        "source_field_path": "control.action_requested.right_joint_3.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 1.832,
+          "min": -1.832
+        },
+        "frame_id": "right_arm_base",
+        "index": 10,
+        "measured_field_path": "robot_feedback.observation.right_joint_4.pos",
+        "name": "right_joint_4",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.right_joint_4.pos",
+        "source_field_path": "control.action_requested.right_joint_4.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 1.22,
+          "min": -1.22
+        },
+        "frame_id": "right_arm_base",
+        "index": 11,
+        "measured_field_path": "robot_feedback.observation.right_joint_5.pos",
+        "name": "right_joint_5",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.right_joint_5.pos",
+        "source_field_path": "control.action_requested.right_joint_5.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 3.14,
+          "min": -3.14
+        },
+        "frame_id": "right_arm_base",
+        "index": 12,
+        "measured_field_path": "robot_feedback.observation.right_joint_6.pos",
+        "name": "right_joint_6",
+        "quantity": "joint_position",
+        "sent_field_path": "control.action_sent.right_joint_6.pos",
+        "source_field_path": "control.action_requested.right_joint_6.pos",
+        "unit": "rad"
+      },
+      {
+        "command_limits": {
+          "max": 0.07,
+          "min": 0.0
+        },
+        "frame_id": "right_gripper",
+        "index": 13,
+        "measured_field_path": "robot_feedback.observation.right_gripper.pos",
+        "name": "right_gripper_opening",
+        "quantity": "gripper_opening",
+        "sent_field_path": "control.action_sent.right_gripper.pos",
+        "source_field_path": "control.action_requested.right_gripper.pos",
+        "unit": "m"
+      }
+    ],
+    "robot_configuration": "dual_piper_6dof_gripper",
+    "version": "piper_bimanual_joint_position_v1"
+  },
+  "annotation_schema": "piper.vla.language.v1",
+  "calibration": {
+    "camera_intrinsics": {
+      "cam_front": {
+        "D": [
+          0.007519734092056751,
+          -0.046880900859832764,
+          -0.0005889330059289932,
+          -0.00016831439279485494,
+          0.0322989784181118,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "K": [
+          688.5137939453125,
+          0.0,
+          642.7904052734375,
+          0.0,
+          688.6779174804688,
+          359.6103515625,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "distortion_model": "rational_polynomial",
+        "frame_id": "global_camera_link",
+        "height": 720,
+        "source_path": "/home/ylhp-e-ai/PIPER/local/calibration/data/global_camera/camera_info.yaml",
+        "source_sha256": "5642303982b3ab1a183c60de5aa4d5aaa26d0bda5b3523c1bb97e8d2dad3d0e6",
+        "width": 1280
+      },
+      "cam_left_wrist": {
+        "D": [
+          0.07559835910797119,
+          -0.1032178178429604,
+          0.00035812080022878945,
+          -0.0004701215657405555,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "K": [
+          490.54779052734375,
+          0.0,
+          321.3036804199219,
+          0.0,
+          490.54779052734375,
+          220.8555145263672,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "distortion_model": "rational_polynomial",
+        "frame_id": "left_wrist_camera_link",
+        "height": 480,
+        "source_path": "/home/ylhp-e-ai/PIPER/local/calibration/data/left_wrist_camera/camera_info.yaml",
+        "source_sha256": "9dac1d57b688ea3b7458a0886e017ef9e642dc59a6bdb9a41d291227665ed736",
+        "width": 640
+      },
+      "cam_right_wrist": {
+        "D": [
+          0.07696817070245743,
+          -0.10647900402545929,
+          0.00021558537264354527,
+          0.00033715233439579606,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "K": [
+          488.0992431640625,
+          0.0,
+          318.0718688964844,
+          0.0,
+          488.0992431640625,
+          223.8431396484375,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "distortion_model": "rational_polynomial",
+        "frame_id": "right_wrist_camera_link",
+        "height": 480,
+        "source_path": "/home/ylhp-e-ai/PIPER/local/calibration/data/right_wrist_camera/camera_info.yaml",
+        "source_sha256": "25ee87d403fa83fc1242dd68f363313e48fb750e323398805ec5ceada488a342",
+        "width": 640
+      }
+    },
+    "camera_serials": {
+      "cam_front": "CP0BB530000J",
+      "cam_left_wrist": "CC1N16200P0",
+      "cam_right_wrist": "CC1N162022N"
+    },
+    "dynamic_tf": {
+      "note": "Only fixed transforms are stored in /tf_static; moving arm links belong to dynamic /tf.",
+      "source": "recorded joint state plus Piper robot model",
+      "status": "reconstruct_offline"
+    },
+    "frame_ids": {
+      "cam_front": "global_camera_link",
+      "cam_left_wrist": "left_wrist_camera_link",
+      "cam_right_wrist": "right_wrist_camera_link",
+      "world": "world"
+    },
+    "limitations": [
+      "World-to-arm-base transforms are operator-confirmed layout values, not measured six-degree-of-freedom registration.",
+      "Tool0 offsets are nominal and have not completed physical touch-off or pivot calibration.",
+      "Quest3-to-robot mapping is established at runtime and is not a persistent static transform."
+    ],
+    "source_file": "calibration/rig_current.json",
+    "source_sha256": "9d84344ddb9de58334430a6c569110d59752dec672e6545c2e088254ad2db9c1",
+    "status": "usable_with_limitations",
+    "tf_status": "usable_with_limitations",
+    "transforms": [
+      {
+        "child_frame": "left_arm_base",
+        "confidence": "operator_confirmed",
+        "parent_frame": "world",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.7071080798594735,
+          0.7071054825112363
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          1.5708
+        ],
+        "source_key": "world_to_left_arm_base",
+        "translation_m": [
+          -0.32,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "child_frame": "right_arm_base",
+        "confidence": "operator_confirmed",
+        "parent_frame": "world",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.7071080798594735,
+          0.7071054825112363
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          1.5708
+        ],
+        "source_key": "world_to_right_arm_base",
+        "translation_m": [
+          0.32,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "child_frame": "left_base_link",
+        "confidence": "design",
+        "parent_frame": "left_arm_base",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "left_arm_base_to_base_link",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "child_frame": "right_base_link",
+        "confidence": "design",
+        "parent_frame": "right_arm_base",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "right_arm_base_to_base_link",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "child_frame": "left_tool0",
+        "confidence": "nominal",
+        "parent_frame": "left_gripper_base",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "left_gripper_base_to_tool0",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.063
+        ]
+      },
+      {
+        "child_frame": "right_tool0",
+        "confidence": "nominal",
+        "parent_frame": "right_gripper_base",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "right_gripper_base_to_tool0",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.063
+        ]
+      },
+      {
+        "child_frame": "left_camera_mount",
+        "confidence": "design",
+        "parent_frame": "left_gripper_base",
+        "published_parent_override": "left_gripper_base",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "left_link6_to_camera_mount",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "child_frame": "right_camera_mount",
+        "confidence": "design",
+        "parent_frame": "right_gripper_base",
+        "published_parent_override": "right_gripper_base",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "right_link6_to_camera_mount",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "child_frame": "left_wrist_camera_link",
+        "confidence": "solved",
+        "pairs": 91,
+        "parent_frame": "left_camera_mount",
+        "poses": 14,
+        "quaternion_xyzw": [
+          -0.12389884490702023,
+          0.12316692893645059,
+          -0.6960796472272321,
+          0.6963850289624852
+        ],
+        "rmse": 0.0232,
+        "rpy_rad": [
+          -0.35120631755681786,
+          -0.0009437179002991236,
+          -1.5701902618231616
+        ],
+        "source_key": "left_camera_mount_to_link",
+        "translation_m": [
+          -0.07615042966948923,
+          0.005830997301469756,
+          0.03396186250904279
+        ]
+      },
+      {
+        "child_frame": "right_wrist_camera_link",
+        "confidence": "solved",
+        "pairs": 120,
+        "parent_frame": "right_camera_mount",
+        "poses": 16,
+        "quaternion_xyzw": [
+          -0.1264920713551052,
+          0.12577391650434652,
+          -0.7033825875268045,
+          0.6880651229175547
+        ],
+        "rmse": 0.017,
+        "rpy_rad": [
+          -0.35864746901700517,
+          -0.0048633694356605695,
+          -1.5919304349540395
+        ],
+        "source_key": "right_camera_mount_to_link",
+        "translation_m": [
+          -0.07735377755227832,
+          0.0030095062018343295,
+          0.0333220757409829
+        ]
+      },
+      {
+        "child_frame": "global_camera_mount",
+        "confidence": "solved",
+        "parent_frame": "world",
+        "quaternion_xyzw": [
+          -0.919198496688442,
+          0.005472812374623756,
+          -0.034689966883581946,
+          0.3922254175955921
+        ],
+        "reprojection_error_px": 0.288,
+        "rpy_rad": [
+          -2.3338551236731617,
+          -0.05951590800460527,
+          -0.037348569819126265
+        ],
+        "source_key": "world_to_global_camera_mount",
+        "translation_m": [
+          -0.00608956003033155,
+          0.028090480356680183,
+          0.6251996145653976
+        ]
+      },
+      {
+        "child_frame": "global_camera_link",
+        "confidence": "design",
+        "parent_frame": "global_camera_mount",
+        "quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "source_key": "global_camera_mount_to_link",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "version": "piper_tf_20260717_import_v1"
+  },
+  "calibration_source": "calibration/rig_current.json",
+  "calibration_status": "usable_with_limitations",
+  "calibration_version": "piper_tf_20260717_import_v1",
+  "camera_config": [
+    {
+      "fps": 30.0,
+      "frame_id": "global_camera_link",
+      "height": 120,
+      "name": "cam_front",
+      "optical_frame": "global_camera_link",
+      "serial": "CP0BB530000J",
+      "width": 160
+    },
+    {
+      "fps": 30.0,
+      "frame_id": "left_wrist_camera_link",
+      "height": 120,
+      "name": "cam_left_wrist",
+      "optical_frame": "left_wrist_camera_link",
+      "serial": "CC1N16200P0",
+      "width": 160
+    },
+    {
+      "fps": 30.0,
+      "frame_id": "right_wrist_camera_link",
+      "height": 120,
+      "name": "cam_right_wrist",
+      "optical_frame": "right_wrist_camera_link",
+      "serial": "CC1N162022N",
+      "width": 160
+    }
+  ],
+  "camera_mode": "mosaic",
+  "camera_rate_hz": 30.0,
+  "camera_sync": {
+    "camera_frame_counts": {
+      "cam_front": 12,
+      "cam_left_wrist": 12,
+      "cam_right_wrist": 12
+    },
+    "first_frame_skew_ms": 0.0,
+    "last_frame_skew_ms": 0.0,
+    "max_frame_count_skew": 0
+  },
+  "capture_contract_version": "piper_capture_cleaning_ready_v1",
+  "capture_mode": "cleaning_ready",
+  "cleaning_ready": true,
+  "cleaning_ready_reason_codes": [],
+  "collection_profile": {
+    "hardware_velocity_limits": {
+      "reason": "fixture",
+      "status": "unavailable"
+    },
+    "max_gripper_delta_m_per_sample": 0.002,
+    "max_joint_delta_rad_per_sample": 0.02,
+    "record_action_from_follower": true,
+    "safety_clamp_behavior": "delegate_to_robot_adapter_and_record_result",
+    "teleop_gripper_alpha": 1.0,
+    "teleop_joint_alpha": 1.0,
+    "version": "piper_bimanual_quest3_cleaning_ready_v1"
+  },
+  "control_commit": "fixture000",
+  "control_rate_hz": 30.0,
+  "duration_s": 0.386667,
+  "end_host_monotonic_ns": 1700000000386666663,
+  "episode_end_host_monotonic_ns": 1700000000386666663,
+  "episode_id": "episode_cleaning_ready_fixture",
+  "episode_start_host_monotonic_ns": 1700000000000000000,
+  "failure_reason": "none",
+  "language_instruction": "Move the blue block to the target tray.",
+  "mcap_log": {
+    "enabled": false,
+    "error": null,
+    "status": "disabled"
+  },
+  "operator_id": "fixture_operator",
+  "preflight": {
+    "blocked": false,
+    "checks": []
+  },
+  "recording_state": "finalized",
+  "robot_id": "dual_piper_rig_01",
+  "robot_urdf_version": "piper-fixture-v1",
+  "runtime_failures": [],
+  "scene_id": "fixture_scene",
+  "schema_version": "piper_canonical_raw_v1",
+  "session_id": "session_cleaning_ready_fixture",
+  "slicing_rule": "session_event_episode_boundaries_v1",
+  "start_host_monotonic_ns": 1700000000000000000,
+  "stream_counts": {
+    "camera": 36,
+    "control": 12,
+    "event": 2,
+    "robot_feedback": 12,
+    "vr_input": 12
+  },
+  "stream_sequence_counts": {
+    "camera": 36,
+    "control": 12,
+    "event": 2,
+    "language_action": 0,
+    "robot_feedback": 12,
+    "vr_input": 12
+  },
+  "task": "Move the blue block to the target tray.",
+  "task_id": "fixture_bimanual_pick_place",
+  "task_success": true,
+  "teleop_commit": "fixture000",
+  "termination_reason": "operator_success",
+  "timebase": {
+    "clock": "python.time",
+    "monotonic_source": "time.monotonic_ns",
+    "primary": "host_monotonic_ns",
+    "unit": "nanosecond",
+    "wall": "host_wall_time_ns",
+    "wall_source": "time.time_ns"
+  }
+}

@@ -11,6 +11,37 @@ CONTROL_PROCESSING_VERSION = "piper_vr_ik_pipeline_v1"
 COLLECTION_PROFILE_VERSION = "piper_bimanual_quest3_cleaning_ready_v1"
 SESSION_EVENT_SCHEMA_VERSION = "piper_session_event_v1"
 
+RECORDING_STATES = ("inprogress", "finalized", "aborted", "incomplete")
+TERMINATION_REASONS = (
+    "operator_success",
+    "operator_failure",
+    "operator_abort",
+    "operator_reset",
+    "task_change",
+    "time_gap",
+    "process_interruption",
+    "process_shutdown",
+    "writer_error",
+    "session_log_ended",
+    "signal",
+    "task_failed",
+    "operator_marked_failure",
+    "operator_stop",
+    "unknown",
+)
+TIMESTAMP_UNAVAILABLE_REASONS = (
+    "hardware_timestamp_unavailable",
+    "quest_device_timestamp_unavailable",
+    "camera_sdk_timestamp_unavailable",
+    "sdk_unavailable",
+    "no_controller_event",
+    "source_unavailable",
+    "legacy_missing",
+    "synthetic_fixture",
+    "not_recorded",
+)
+CALIBRATION_STATUSES = ("missing", "usable_with_limitations", "usable", "calibrated", "verified", "valid")
+
 PRIMARY_TIMEBASE = "host_monotonic_ns"
 WALL_TIMEBASE = "host_wall_time_ns"
 

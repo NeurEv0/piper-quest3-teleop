@@ -11,8 +11,11 @@ from canonical_raw.contract import (
     C2_VALIDATION_THRESHOLDS,
     CAPTURE_CONTRACT_VERSION,
     CORE_ROW_FIELDS,
+    RECORDING_STATES,
     LIFECYCLE_ROW_FIELDS,
     SAMPLE_SYNC_STREAMS,
+    TERMINATION_REASONS,
+    TIMESTAMP_UNAVAILABLE_REASONS,
 )
 
 
@@ -313,6 +316,10 @@ def _validate_cleaning_ready_metadata(metadata: dict[str, object], errors: list[
     end_ns = metadata.get("episode_end_host_monotonic_ns")
     if start_ns is not None and end_ns is not None and int(end_ns) < int(start_ns):
         errors.append("metadata episode boundary timestamps are reversed")
+    if metadata.get("recording_state") not in RECORDING_STATES:
+        errors.append(f"metadata.recording_state is invalid: {metadata.get('recording_state')}")
+    if metadata.get("termination_reason") not in TERMINATION_REASONS:
+        errors.append(f"metadata.termination_reason is invalid: {metadata.get('termination_reason')}")
     timebase = metadata.get("timebase")
     if not isinstance(timebase, dict) or timebase.get("primary") != "host_monotonic_ns":
         errors.append("metadata.timebase.primary must be host_monotonic_ns for cleaning-ready capture")
@@ -488,6 +495,8 @@ def _validate_lifecycle_contract(
         source = source_fields.get(stream)
         if source and row.get(source[0]) is None and not row.get(source[1]):
             errors.append(f"{stream} row {index} lacks source timestamp and unavailable reason")
+        if source and row.get(source[0]) is None and row.get(source[1]) not in TIMESTAMP_UNAVAILABLE_REASONS:
+            errors.append(f"{stream} row {index} has invalid timestamp unavailable reason")
 
 
 def _validate_core_row_contract(

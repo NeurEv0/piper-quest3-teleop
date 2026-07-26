@@ -1,0 +1,2 @@
+{"episode_id":"episode_cleaning_ready_fixture","event":"recording_started","event_type":"recording_started","host_monotonic_ns":1700000000000000000,"host_wall_time_ns":1700000010000000000,"payload":{"capture_contract_version":"piper_capture_cleaning_ready_v1"},"source":"fixture"}
+{"episode_id":"episode_cleaning_ready_fixture","event":"recording_finished","event_type":"recording_finished","host_monotonic_ns":1700000000386666663,"host_wall_time_ns":1700000010386666663,"payload":{"task_success":true},"reason":"operator_success","source":"fixture"}

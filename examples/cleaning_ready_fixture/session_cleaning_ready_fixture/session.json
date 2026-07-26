@@ -1,0 +1,8 @@
+{
+  "episode_id": "episode_cleaning_ready_fixture",
+  "fixture": true,
+  "operator_id": "fixture_operator",
+  "schema_version": "piper_canonical_raw_v1",
+  "session_id": "session_cleaning_ready_fixture",
+  "task_id": "fixture_bimanual_pick_place"
+}

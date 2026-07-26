@@ -6,18 +6,28 @@ training-time alignment or normalization.
 
 The cleaning-ready capture TODO is tracked in
 [`CAPTURE_SIDE_TODO.zh-CN.md`](CAPTURE_SIDE_TODO.zh-CN.md).
+The capture-side implementation layers are defined in
+[`CAPTURE_SIDE_LAYERS.zh-CN.md`](CAPTURE_SIDE_LAYERS.zh-CN.md).
 
 ## Operator workflow
 
 1. Connect both arms, three configured Orbbec cameras, the emergency stop, and
    Quest3.
-2. Set up USB forwarding with `scripts/quest3_usb_link.sh` when using USB.
-3. Run `scripts/run_bimanual_canonical.sh`.
-4. Open `http://localhost:8020`, enter the operator and task, and wait until all
-   blocking checks pass.
-5. Enter Quest VR at `https://localhost:8012?ws=wss://localhost:8012`.
-6. Start the episode from the dashboard, then end it as success, failure, or
-   abort. The dashboard reports automatic validation after finalization.
+2. Run `bash scripts/start_vla_capture.sh` and select the task, or pass
+   `--task`, `--operator`, and `--scene` explicitly for a scripted session.
+3. Open `http://localhost:8020`, verify the resolved operator/task context, and
+   wait until all blocking checks pass.
+4. Enter Quest VR at `https://localhost:8012?ws=wss://localhost:8012`.
+5. Start the episode from the dashboard or headset gesture, then end it as
+   success, failure, or abort. The dashboard reports automatic validation after
+   finalization.
+6. When the recorder is idle, stop the capture service with
+   `bash scripts/stop_vla_capture.sh`.
+
+The active launch chain is `start_vla_capture.sh -> run_bimanual_mcap_shadow.sh
+-> run_bimanual_canonical.sh -> record_bimanual_canonical.py`. Only
+`start_vla_capture.sh` and `stop_vla_capture.sh` are operator-facing; the middle
+files are implementation details for debugging and tests.
 
 With the headset on, hold left Y and right B together for one second to start.
 After releasing both buttons, hold right B for one second to finish as success,

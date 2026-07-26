@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# User-facing launcher for the three initial cube-stacking VLA tasks.
+# Operator-facing start entry for VLA capture.
+# Resolves the task/operator context, then delegates to the internal Canonical Raw launcher.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

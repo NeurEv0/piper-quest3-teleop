@@ -18,8 +18,8 @@ whole `lib/` directory is therefore self-contained and portable.
 2. this vendored copy: `third_party/orbbec_sdk/lib/libOrbbecSDK.so`
 3. fork fallback (original hardcoded path) — with a warning
 
-The robot configs (`lerobot_robot_piper_quest3`, `lerobot_robot_bi_piper_quest3`)
-call this resolver for every `OrbbecCameraConfig.sdk_lib_path`.
+The active dual-arm robot config (`lerobot_robot_bi_piper_quest3`) calls this
+resolver for every `OrbbecCameraConfig.sdk_lib_path`.
 
 ### Restoring after a fresh checkout
 The `lib/` contents are git-ignored (≈21 MB of binaries). Re-vendor them with:

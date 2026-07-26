@@ -1,0 +1,404 @@
+{
+  "calibration_version": "piper_tf_20260717_import_v1",
+  "camera_intrinsics": {
+    "cam_front": {
+      "D": [
+        0.007519734092056751,
+        -0.046880900859832764,
+        -0.0005889330059289932,
+        -0.00016831439279485494,
+        0.0322989784181118,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "K": [
+        688.5137939453125,
+        0.0,
+        642.7904052734375,
+        0.0,
+        688.6779174804688,
+        359.6103515625,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "distortion_model": "rational_polynomial",
+      "frame_id": "global_camera_link",
+      "height": 720,
+      "source_path": "/home/ylhp-e-ai/PIPER/local/calibration/data/global_camera/camera_info.yaml",
+      "source_sha256": "5642303982b3ab1a183c60de5aa4d5aaa26d0bda5b3523c1bb97e8d2dad3d0e6",
+      "width": 1280
+    },
+    "cam_left_wrist": {
+      "D": [
+        0.07559835910797119,
+        -0.1032178178429604,
+        0.00035812080022878945,
+        -0.0004701215657405555,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "K": [
+        490.54779052734375,
+        0.0,
+        321.3036804199219,
+        0.0,
+        490.54779052734375,
+        220.8555145263672,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "distortion_model": "rational_polynomial",
+      "frame_id": "left_wrist_camera_link",
+      "height": 480,
+      "source_path": "/home/ylhp-e-ai/PIPER/local/calibration/data/left_wrist_camera/camera_info.yaml",
+      "source_sha256": "9dac1d57b688ea3b7458a0886e017ef9e642dc59a6bdb9a41d291227665ed736",
+      "width": 640
+    },
+    "cam_right_wrist": {
+      "D": [
+        0.07696817070245743,
+        -0.10647900402545929,
+        0.00021558537264354527,
+        0.00033715233439579606,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "K": [
+        488.0992431640625,
+        0.0,
+        318.0718688964844,
+        0.0,
+        488.0992431640625,
+        223.8431396484375,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "distortion_model": "rational_polynomial",
+      "frame_id": "right_wrist_camera_link",
+      "height": 480,
+      "source_path": "/home/ylhp-e-ai/PIPER/local/calibration/data/right_wrist_camera/camera_info.yaml",
+      "source_sha256": "25ee87d403fa83fc1242dd68f363313e48fb750e323398805ec5ceada488a342",
+      "width": 640
+    }
+  },
+  "camera_serials": {
+    "cam_front": "CP0BB530000J",
+    "cam_left_wrist": "CC1N16200P0",
+    "cam_right_wrist": "CC1N162022N"
+  },
+  "dynamic_tf": {
+    "note": "Only fixed transforms are stored in /tf_static; moving arm links belong to dynamic /tf.",
+    "source": "recorded joint state plus Piper robot model",
+    "status": "reconstruct_offline"
+  },
+  "frame_ids": {
+    "cam_front": "global_camera_link",
+    "cam_left_wrist": "left_wrist_camera_link",
+    "cam_right_wrist": "right_wrist_camera_link",
+    "world": "world"
+  },
+  "imported_at": "2026-07-22",
+  "limitations": [
+    "World-to-arm-base transforms are operator-confirmed layout values, not measured six-degree-of-freedom registration.",
+    "Tool0 offsets are nominal and have not completed physical touch-off or pivot calibration.",
+    "Quest3-to-robot mapping is established at runtime and is not a persistent static transform."
+  ],
+  "robot_id": "dual_piper_rig_01",
+  "source_file": "calibration/rig_current.json",
+  "source_sha256": "9d84344ddb9de58334430a6c569110d59752dec672e6545c2e088254ad2db9c1",
+  "sources": {
+    "registry": {
+      "path": "/home/ylhp-e-ai/ZHITAI_1t/piper-quest3-teleop/schema/calibration_registry.yaml",
+      "sha256": "36ab15bba38c0f61881d5aedaa8050960c9ff2ca6be5890d5ce08e2432db36b5"
+    },
+    "static_transforms": {
+      "path": "/home/ylhp-e-ai/PIPER/local/dual_arm_bringup/config/static_transforms.yaml",
+      "sha256": "cf291ee5238372e2402ee2cd3402d7c05028a9588b597864c6a562005dd71762"
+    }
+  },
+  "status": "usable_with_limitations",
+  "tf_status": "usable_with_limitations",
+  "transforms": [
+    {
+      "child_frame": "left_arm_base",
+      "confidence": "operator_confirmed",
+      "parent_frame": "world",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.7071080798594735,
+        0.7071054825112363
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        1.5708
+      ],
+      "source_key": "world_to_left_arm_base",
+      "translation_m": [
+        -0.32,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child_frame": "right_arm_base",
+      "confidence": "operator_confirmed",
+      "parent_frame": "world",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.7071080798594735,
+        0.7071054825112363
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        1.5708
+      ],
+      "source_key": "world_to_right_arm_base",
+      "translation_m": [
+        0.32,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child_frame": "left_base_link",
+      "confidence": "design",
+      "parent_frame": "left_arm_base",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "left_arm_base_to_base_link",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child_frame": "right_base_link",
+      "confidence": "design",
+      "parent_frame": "right_arm_base",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "right_arm_base_to_base_link",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child_frame": "left_tool0",
+      "confidence": "nominal",
+      "parent_frame": "left_gripper_base",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "left_gripper_base_to_tool0",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.063
+      ]
+    },
+    {
+      "child_frame": "right_tool0",
+      "confidence": "nominal",
+      "parent_frame": "right_gripper_base",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "right_gripper_base_to_tool0",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.063
+      ]
+    },
+    {
+      "child_frame": "left_camera_mount",
+      "confidence": "design",
+      "parent_frame": "left_gripper_base",
+      "published_parent_override": "left_gripper_base",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "left_link6_to_camera_mount",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child_frame": "right_camera_mount",
+      "confidence": "design",
+      "parent_frame": "right_gripper_base",
+      "published_parent_override": "right_gripper_base",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "right_link6_to_camera_mount",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child_frame": "left_wrist_camera_link",
+      "confidence": "solved",
+      "pairs": 91,
+      "parent_frame": "left_camera_mount",
+      "poses": 14,
+      "quaternion_xyzw": [
+        -0.12389884490702023,
+        0.12316692893645059,
+        -0.6960796472272321,
+        0.6963850289624852
+      ],
+      "rmse": 0.0232,
+      "rpy_rad": [
+        -0.35120631755681786,
+        -0.0009437179002991236,
+        -1.5701902618231616
+      ],
+      "source_key": "left_camera_mount_to_link",
+      "translation_m": [
+        -0.07615042966948923,
+        0.005830997301469756,
+        0.03396186250904279
+      ]
+    },
+    {
+      "child_frame": "right_wrist_camera_link",
+      "confidence": "solved",
+      "pairs": 120,
+      "parent_frame": "right_camera_mount",
+      "poses": 16,
+      "quaternion_xyzw": [
+        -0.1264920713551052,
+        0.12577391650434652,
+        -0.7033825875268045,
+        0.6880651229175547
+      ],
+      "rmse": 0.017,
+      "rpy_rad": [
+        -0.35864746901700517,
+        -0.0048633694356605695,
+        -1.5919304349540395
+      ],
+      "source_key": "right_camera_mount_to_link",
+      "translation_m": [
+        -0.07735377755227832,
+        0.0030095062018343295,
+        0.0333220757409829
+      ]
+    },
+    {
+      "child_frame": "global_camera_mount",
+      "confidence": "solved",
+      "parent_frame": "world",
+      "quaternion_xyzw": [
+        -0.919198496688442,
+        0.005472812374623756,
+        -0.034689966883581946,
+        0.3922254175955921
+      ],
+      "reprojection_error_px": 0.288,
+      "rpy_rad": [
+        -2.3338551236731617,
+        -0.05951590800460527,
+        -0.037348569819126265
+      ],
+      "source_key": "world_to_global_camera_mount",
+      "translation_m": [
+        -0.00608956003033155,
+        0.028090480356680183,
+        0.6251996145653976
+      ]
+    },
+    {
+      "child_frame": "global_camera_link",
+      "confidence": "design",
+      "parent_frame": "global_camera_mount",
+      "quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_key": "global_camera_mount_to_link",
+      "translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

@@ -4,20 +4,24 @@ The logging path is additive:
 
 `hardware/Quest3 -> optional raw.mcap -> Canonical Raw -> training adapters`
 
-Canonical Raw remains unchanged and is still written as JSONL, Parquet, and MP4. MCAP is disabled by default so the existing real teleoperation launcher has identical behavior unless the operator opts in.
+Canonical Raw remains unchanged and is still written as JSONL, Parquet, and MP4. The operator-facing `start_vla_capture.sh` path enables MCAP by default. The internal Canonical launcher keeps MCAP behind its implementation flag so lower-level debugging can run without the sidecar.
 
 The capture-side TODO for cleaning-ready raw inputs is tracked in
 [`CAPTURE_SIDE_TODO.zh-CN.md`](CAPTURE_SIDE_TODO.zh-CN.md).
 
 ## Run
 
-Use the shadow launcher when the rig is ready:
+Use the operator-facing launcher when the rig is ready:
 
 ```bash
-scripts/run_bimanual_mcap_shadow.sh
+bash scripts/start_vla_capture.sh
 ```
 
-Or set `ENABLE_MCAP=1` for `scripts/run_bimanual_canonical.sh`. Each finalized episode then contains `raw.mcap`; `mcap_validation.json` is created by the application after finalization.
+That path delegates through the internal MCAP shadow wrapper, so each finalized
+episode contains `raw.mcap`; `mcap_validation.json` is created by the
+application after finalization. `run_bimanual_mcap_shadow.sh`,
+`run_bimanual_canonical.sh`, and `ENABLE_MCAP` are implementation controls, not
+operator start commands.
 
 Validate a saved episode independently with `python scripts/validate_mcap_episode.py /path/to/episode`.
 

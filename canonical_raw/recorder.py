@@ -202,7 +202,10 @@ class _EpisodeWriter:
 
         name = str(message["camera_name"])
         message["camera_write_host_monotonic_ns"] = time.monotonic_ns()
-        message.setdefault("camera_stream_sequence_id", self._camera_counts.get(name, 0))
+        if message.get("camera_stream_sequence_id") is None:
+            message["camera_stream_sequence_id"] = self._camera_counts.get(name, 0)
+        else:
+            message["camera_stream_sequence_id"] = int(message["camera_stream_sequence_id"])
         frame = np.asarray(message.pop("frame"), dtype=np.uint8)
         if self._mcap is not None:
             self._try_mcap(
@@ -235,7 +238,6 @@ class _EpisodeWriter:
 
         writer.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
         message["video_frame_index"] = self._camera_counts.get(name, 0)
-        message["camera_stream_sequence_id"] = message["video_frame_index"]
         message["width"] = width
         message["height"] = height
         message["decoded"] = True
@@ -753,6 +755,11 @@ class AsyncCanonicalRecorder:
         *,
         source_timestamp_ns: int | None = None,
         sensor_timestamp_ns: int | None = None,
+        camera_stream_sequence_id: int | None = None,
+        camera_sync_group_skew_ms: float | None = None,
+        camera_sync_group_size: int | None = None,
+        camera_alignment_dropped_frames: int | None = None,
+        camera_sync_threshold_ms: float | None = None,
     ) -> bool:
         if self._status.state != RecorderState.RECORDING:
             return False
@@ -762,12 +769,22 @@ class AsyncCanonicalRecorder:
             "host_monotonic_ns": int(host_monotonic_ns),
             "camera_enqueue_host_monotonic_ns": time.monotonic_ns(),
             "host_wall_time_ns": time.time_ns(),
-            "source_timestamp_ns": int(source_timestamp_ns or host_monotonic_ns),
+            "source_timestamp_ns": int(host_monotonic_ns if source_timestamp_ns is None else source_timestamp_ns),
             "camera_sensor_timestamp_ns": sensor_timestamp_ns,
             "camera_sensor_timestamp_unavailable_reason": None if sensor_timestamp_ns is not None else "camera_sdk_timestamp_unavailable",
             "camera_host_receive_monotonic_ns": int(host_monotonic_ns),
             "frame": np.asarray(frame, dtype=np.uint8),
         }
+        if camera_stream_sequence_id is not None:
+            message["camera_stream_sequence_id"] = int(camera_stream_sequence_id)
+        if camera_sync_group_skew_ms is not None:
+            message["camera_sync_group_skew_ms"] = float(camera_sync_group_skew_ms)
+        if camera_sync_group_size is not None:
+            message["camera_sync_group_size"] = int(camera_sync_group_size)
+        if camera_alignment_dropped_frames is not None:
+            message["camera_alignment_dropped_frames"] = int(camera_alignment_dropped_frames)
+        if camera_sync_threshold_ms is not None:
+            message["camera_sync_threshold_ms"] = float(camera_sync_threshold_ms)
         try:
             self._camera_queue.put_nowait(message)
             return True

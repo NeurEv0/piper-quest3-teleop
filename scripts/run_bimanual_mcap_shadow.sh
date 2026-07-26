@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Opt-in launcher: preserve Canonical Raw and add a raw MCAP sidecar.
+# Internal wrapper used by scripts/start_vla_capture.sh to enable the raw MCAP sidecar.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

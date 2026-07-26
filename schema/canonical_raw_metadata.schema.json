@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "piper_canonical_raw_cleaning_ready_metadata_v1",
+  "title": "Piper Canonical Raw cleaning-ready episode metadata",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "capture_contract_version",
+    "episode_id",
+    "session_id",
+    "operator_id",
+    "task_id",
+    "robot_id",
+    "scene_id",
+    "language_instruction",
+    "camera_mode",
+    "recording_state",
+    "termination_reason",
+    "failure_reason",
+    "task_success",
+    "start_host_monotonic_ns",
+    "episode_start_host_monotonic_ns",
+    "end_host_monotonic_ns",
+    "episode_end_host_monotonic_ns",
+    "duration_s",
+    "slicing_rule",
+    "timebase",
+    "action_semantics",
+    "calibration",
+    "cleaning_ready",
+    "cleaning_ready_reason_codes"
+  ],
+  "properties": {
+    "schema_version": {"const": "piper_canonical_raw_v1"},
+    "capture_contract_version": {"const": "piper_capture_cleaning_ready_v1"},
+    "episode_id": {"type": "string", "minLength": 1},
+    "session_id": {"type": "string", "minLength": 1},
+    "operator_id": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "robot_id": {"type": "string", "minLength": 1},
+    "scene_id": {"type": "string", "minLength": 1},
+    "language_instruction": {"type": "string", "minLength": 1},
+    "camera_mode": {"enum": ["off", "mosaic"]},
+    "recording_state": {"enum": ["inprogress", "finalized", "aborted", "incomplete"]},
+    "termination_reason": {
+      "enum": [
+        "operator_success",
+        "operator_failure",
+        "operator_abort",
+        "operator_reset",
+        "task_change",
+        "time_gap",
+        "process_interruption",
+        "process_shutdown",
+        "writer_error",
+        "session_log_ended",
+        "signal",
+        "task_failed",
+        "operator_marked_failure",
+        "operator_stop",
+        "unknown"
+      ]
+    },
+    "failure_reason": {"type": "string", "minLength": 1},
+    "task_success": {"type": "boolean"},
+    "start_host_monotonic_ns": {"type": "integer", "minimum": 1},
+    "episode_start_host_monotonic_ns": {"type": "integer", "minimum": 1},
+    "end_host_monotonic_ns": {"type": "integer", "minimum": 1},
+    "episode_end_host_monotonic_ns": {"type": "integer", "minimum": 1},
+    "duration_s": {"type": "number", "minimum": 0},
+    "slicing_rule": {"type": "string", "const": "session_event_episode_boundaries_v1"},
+    "timebase": {
+      "type": "object",
+      "required": ["primary", "wall", "unit", "clock", "monotonic_source", "wall_source"],
+      "properties": {
+        "primary": {"const": "host_monotonic_ns"},
+        "wall": {"const": "host_wall_time_ns"},
+        "unit": {"const": "nanosecond"},
+        "clock": {"type": "string", "minLength": 1},
+        "monotonic_source": {"type": "string", "minLength": 1},
+        "wall_source": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "action_semantics": {
+      "type": "object",
+      "required": ["version", "teleop.intent_t", "controller.command_t", "robot.executed_t", "policy.action_t"],
+      "properties": {
+        "version": {"const": "piper_action_semantics_v1"},
+        "teleop.intent_t": {"type": "string", "minLength": 1},
+        "controller.command_t": {"type": "string", "minLength": 1},
+        "robot.executed_t": {"type": "string", "minLength": 1},
+        "policy.action_t": {"type": "string", "minLength": 1},
+        "record_action_from_follower": {"type": ["boolean", "string"]},
+        "teleop_joint_alpha": {"type": "number"},
+        "teleop_gripper_alpha": {"type": "number"}
+      },
+      "additionalProperties": true
+    },
+    "camera_config": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "serial", "width", "height", "fps", "optical_frame"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "serial": {"type": "string", "minLength": 1},
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1},
+          "fps": {"type": "number", "exclusiveMinimum": 0},
+          "optical_frame": {"type": "string", "minLength": 1},
+          "frame_id": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": [
+        "version",
+        "status",
+        "tf_status",
+        "source_file",
+        "source_sha256",
+        "frame_ids",
+        "camera_intrinsics",
+        "transforms",
+        "dynamic_tf",
+        "limitations"
+      ],
+      "properties": {
+        "version": {"type": "string", "minLength": 1},
+        "status": {"enum": ["missing", "usable_with_limitations", "usable", "calibrated", "verified", "valid"]},
+        "tf_status": {"enum": ["missing", "usable_with_limitations", "usable", "calibrated", "verified", "valid"]},
+        "source_file": {"type": "string", "minLength": 1},
+        "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "frame_ids": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+        "camera_serials": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+        "camera_intrinsics": {"type": "object", "additionalProperties": true},
+        "transforms": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+        "dynamic_tf": {"type": "object", "additionalProperties": true},
+        "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      },
+      "additionalProperties": true
+    },
+    "collection_profile": {"type": "object", "additionalProperties": true},
+    "action_space": {"type": "object", "additionalProperties": true},
+    "preflight": {"type": "object", "additionalProperties": true},
+    "cleaning_ready": {"type": "boolean"},
+    "cleaning_ready_reason_codes": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "stream_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "stream_sequence_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "camera_sync": {"type": "object", "additionalProperties": true},
+    "mcap_log": {"type": "object", "additionalProperties": true},
+    "runtime_failures": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "additionalProperties": true
+}
